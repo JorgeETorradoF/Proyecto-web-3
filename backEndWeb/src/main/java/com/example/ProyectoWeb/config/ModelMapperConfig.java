@@ -2,6 +2,7 @@ package com.example.ProyectoWeb.config;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import com.example.ProyectoWeb.dto.PropiedadDTO;
@@ -15,6 +16,7 @@ public class ModelMapperConfig {
     @Bean
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
         // Configuración personalizada para ignorar el campo 'id' al mapear propiedad
         modelMapper.addMappings(new PropertyMap<PropiedadDTO, Propiedades>() {
