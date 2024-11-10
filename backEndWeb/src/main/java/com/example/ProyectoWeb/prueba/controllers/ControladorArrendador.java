@@ -1,5 +1,6 @@
 package com.example.ProyectoWeb.prueba.controllers;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -29,17 +30,15 @@ import java.nio.file.StandardCopyOption;
 @RequestMapping("/api/arrendador/{id}")
 public class ControladorArrendador {
 
-    private final ServicioPropiedad servicioPropiedad;
-    private final ServicioContratos servicioContratos;
+    @Autowired
+    private ServicioPropiedad servicioPropiedad;
+    @Autowired
+    private ServicioContratos servicioContratos;
+    
     private static final Logger logger = LoggerFactory.getLogger(ControladorArrendador.class);
 
     // Directorio raíz para guardar imágenes
     private static final String UPLOAD_DIRECTORY = System.getProperty("user.dir") + "/uploads/";
-
-    public ControladorArrendador(ServicioPropiedad servicioPropiedad, ServicioContratos servicioContratos) {
-        this.servicioPropiedad = servicioPropiedad;
-        this.servicioContratos = servicioContratos;
-    }
 
     @PostMapping(value = "/registrar-propiedad", consumes = "multipart/form-data", produces = "application/json")
 public ResponseEntity<?> registrarPropiedad(

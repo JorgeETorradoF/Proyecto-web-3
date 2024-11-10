@@ -1,11 +1,14 @@
 package com.example.ProyectoWeb.prueba.controllers;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.ProyectoWeb.service.ServicioLogin;
+import com.example.ProyectoWeb.config.JWTTokenService;
 import com.example.ProyectoWeb.dto.LoginDTO;
 import com.example.ProyectoWeb.dto.RespuestaLoginDTO;
+import com.example.ProyectoWeb.dto.UrlYTokenDTO;
 import com.example.ProyectoWeb.exception.CorreoNoExistenteException;
 import com.example.ProyectoWeb.model.RedirectResponse;
 
@@ -16,11 +19,12 @@ import java.util.Map;
 @RequestMapping("/api/iniciar-sesion")
 public class ControladorLogin {
     
-    private final ServicioLogin servicioLogin;
+    @Autowired
+    private ServicioLogin servicioLogin;
 
-    public ControladorLogin(ServicioLogin servicioLogin) {
-        this.servicioLogin = servicioLogin;
-    }
+    @Autowired
+    private JWTTokenService jwtTokenService;
+
     
     @PostMapping
     public ResponseEntity<?> loginUsuario(@RequestBody LoginDTO loginDTO) {
@@ -34,7 +38,7 @@ public class ControladorLogin {
                 ruta = "/arrendatario/" + login.getId();
             }
             // Envolver la URL en un objeto JSON
-            RedirectResponse response = new RedirectResponse(ruta);
+            UrlYTokenDTO response = new UrlYTokenDTO(ruta, jwtTokenService.generarToken(login.getId()));
             return ResponseEntity.ok(response); // Retornar el objeto JSON
 
         } catch (CorreoNoExistenteException e) {

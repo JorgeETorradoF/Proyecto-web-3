@@ -8,6 +8,7 @@ import com.example.ProyectoWeb.model.Arrendatarios;
 import com.example.ProyectoWeb.model.Usuario;
 import com.example.ProyectoWeb.repository.RepositorioArrendadores;
 import com.example.ProyectoWeb.repository.RepositorioArrendatarios;
+import com.example.ProyectoWeb.config.JWTTokenService; 
 
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -23,6 +24,9 @@ public class ServicioRegistro {
 
     @Autowired
     private RepositorioArrendatarios repositorioArrendatarios;
+
+    @Autowired
+    private JWTTokenService jwtTokenService;
 
     // Validamos que no estén vacíos los nombres y apellidos
     public boolean nombresApellidosValidos(String nombre, String apellido) {
@@ -48,7 +52,7 @@ public class ServicioRegistro {
     }
 
     // Registro de usuario
-    public Usuario registerUser(RegistroDTO registroDTO) throws CorreoRegistradoException, CamposInvalidosException {
+    public String registerUser(RegistroDTO registroDTO) throws CorreoRegistradoException, CamposInvalidosException {
         Usuario savedUser = null;
 
         // Si todos los campos están llenos y son válidos se prosigue con el registro
@@ -87,6 +91,6 @@ public class ServicioRegistro {
             // Mensaje de error: llene todos los campos
             throw new CamposInvalidosException("Por favor llene todos los campos e ingrese un correo válido");
         }
-        return savedUser;
+        return jwtTokenService.generarToken(savedUser.getId());
     }
 }

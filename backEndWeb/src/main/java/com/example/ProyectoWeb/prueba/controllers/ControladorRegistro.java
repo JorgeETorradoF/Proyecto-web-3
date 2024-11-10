@@ -1,5 +1,6 @@
 package com.example.ProyectoWeb.prueba.controllers;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,17 +17,14 @@ import java.util.Map;
 @RequestMapping("/api/crear-cuenta")
 public class ControladorRegistro {
     
-    private final ServicioRegistro servicioRegistro;
-
-    public ControladorRegistro(ServicioRegistro servicioRegistro) {
-        this.servicioRegistro = servicioRegistro;
-    }
+    @Autowired
+    private ServicioRegistro servicioRegistro;
     
     @PostMapping(consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> registrarUsuario(@RequestBody RegistroDTO registroDTO) {
         try {
 
-            Usuario usuario = servicioRegistro.registerUser(registroDTO);
+            String usuario = servicioRegistro.registerUser(registroDTO);
             return ResponseEntity.ok(usuario);
 
         } catch (CorreoRegistradoException e) {

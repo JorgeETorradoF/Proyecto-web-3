@@ -26,14 +26,14 @@ public class JWTTokenService {
     private long jwtExpiration = 99999999;
     private Key jwtKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);; // You need to set this key appropriately
 
-    public String generarToken(Usuario usuario) {
+    public String generarToken(int id) {
 
         // byte[] secretBytes = secret.getBytes();
         // Key jwtKey = new SecretKeySpec(secretBytes, SignatureAlgorithm.HS512.getJcaName());
         ObjectMapper objectMapper = new ObjectMapper();
         String username = "";
         try {
-            username = objectMapper.writeValueAsString(usuario);
+            username = objectMapper.writeValueAsString(id);
         } catch (Exception e) {
             e.printStackTrace();
         }
