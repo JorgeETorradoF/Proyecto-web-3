@@ -1,6 +1,7 @@
 package com.example.ProyectoWeb.config;
 
 import java.io.IOException;
+import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
@@ -50,7 +51,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter{
 		try {
 			if (existeJWTToken(request)) {
 				Claims claims = validarToken(request);
-				if (claims.get("authorities") != null) {
+				if (!(claims.getExpiration().after(new Date()))) {
 					String username = getUsername(request);
 					UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 					UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(username, userDetails, null);
