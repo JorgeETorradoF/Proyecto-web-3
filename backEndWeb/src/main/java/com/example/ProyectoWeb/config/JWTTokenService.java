@@ -7,7 +7,8 @@ import java.util.Date;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
+
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -17,7 +18,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
-@Service
+@Component
 public class JWTTokenService {
 // @Value("${jwt.secret}")
     // private String secret = "DES6123";
@@ -31,14 +32,14 @@ public class JWTTokenService {
         // byte[] secretBytes = secret.getBytes();
         // Key jwtKey = new SecretKeySpec(secretBytes, SignatureAlgorithm.HS512.getJcaName());
         ObjectMapper objectMapper = new ObjectMapper();
-        String username = "";
+        String userID = "";
         try {
-            username = objectMapper.writeValueAsString(id);
+            userID = objectMapper.writeValueAsString(id);
         } catch (Exception e) {
             e.printStackTrace();
         }
         
-        System.out.println(username  );
+        System.out.println(userID  );
 
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
@@ -46,7 +47,7 @@ public class JWTTokenService {
         Collection<? extends GrantedAuthority> authorities = new ArrayList<>();
 
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(userID)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .claim("authorities", authorities.stream()
@@ -72,5 +73,16 @@ public class JWTTokenService {
                             .build()
                             .parseClaimsJws(jwtToken)
                             .getBody();
+    }
+    public boolean validarToken(String token)
+    {
+        try
+        {
+            decodificarToken(token);
+            return true;
+        }catch(Exception e)
+        {
+            return false;
+        }
     }
 }

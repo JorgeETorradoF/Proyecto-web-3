@@ -20,8 +20,6 @@ import com.example.ProyectoWeb.model.Propiedades;
 import com.example.ProyectoWeb.service.ServicioContratos;
 import com.example.ProyectoWeb.service.ServicioPropiedad;
 
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.Authentication;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +29,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 @Controller
-@RequestMapping("/api/arrendador")
+@RequestMapping("/api/arrendador/{id}")
 public class ControladorArrendador {
 
     @Autowired
@@ -39,28 +37,18 @@ public class ControladorArrendador {
     @Autowired
     private ServicioContratos servicioContratos;
 
-    @Autowired
-    JWTTokenService jwTokenService;
-
-    private static final String HEADER = "Authorization";
-
     private static final Logger logger = LoggerFactory.getLogger(ControladorArrendador.class);
 
     // Directorio raíz para guardar imágenes
     private static final String UPLOAD_DIRECTORY = System.getProperty("user.dir") + "/uploads/";
+    
 
-    // Obtener la ID del usuario desde el contexto de seguridad
-    private int obtenerIdUsuario(String token) {
-        return Integer.parseInt(jwTokenService.getUserId(token));
-    }
 
     @PostMapping(value = "/registrar-propiedad", consumes = "multipart/form-data", produces = "application/json")
     public ResponseEntity<?> registrarPropiedad(
             @RequestPart("propiedadDTO") PropiedadDTO propiedadDTO,
             @RequestPart("imagen") MultipartFile imagen,
-            @RequestHeader(HEADER) String token) {
-
-        int id = obtenerIdUsuario(token);  // Obtener la ID desde el contexto de seguridad
+            @PathVariable("id") int id) {
         logger.info("Iniciando registro de propiedad para el arrendador con ID: {}", id);
         propiedadDTO.setIdArrendador(id);
         propiedadDTO.setEstado("activo");
@@ -97,9 +85,8 @@ public class ControladorArrendador {
     // Método para servir imágenes guardadas
     @GetMapping("/imagenes/{nombreImagen}")
     @ResponseBody
-    public ResponseEntity<byte[]> obtenerImagen(@RequestHeader(HEADER) String token,@PathVariable("nombreImagen") String nombreImagen) {
+    public ResponseEntity<byte[]> obtenerImagen(@PathVariable("id") String id,@PathVariable("nombreImagen") String nombreImagen) {
         try {
-            int id = obtenerIdUsuario(token);
             Path rutaImagen = Paths.get(UPLOAD_DIRECTORY + "arrendador_" + id, nombreImagen);
             byte[] imagen = Files.readAllBytes(rutaImagen);
             return ResponseEntity.ok(imagen);
@@ -110,9 +97,8 @@ public class ControladorArrendador {
 
     // Obtener todas las propiedades de un arrendador
     @GetMapping("/propiedades")
-    public @ResponseBody Iterable<Propiedades> getAllProperties(@RequestHeader(HEADER) String token) {
+    public @ResponseBody Iterable<Propiedades> getAllProperties(@PathVariable int id) {
         try {
-            int id = obtenerIdUsuario(token);
             return servicioPropiedad.getPropiedades(id);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error: ", e);
