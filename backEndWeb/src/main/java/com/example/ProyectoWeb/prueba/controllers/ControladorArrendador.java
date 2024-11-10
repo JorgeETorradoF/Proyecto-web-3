@@ -11,7 +11,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.example.ProyectoWeb.config.JWTTokenService;
 import com.example.ProyectoWeb.dto.PropiedadDTO;
 import com.example.ProyectoWeb.exception.PropNoEncontradaException;
 import com.example.ProyectoWeb.exception.ContratoNoExistenteException;

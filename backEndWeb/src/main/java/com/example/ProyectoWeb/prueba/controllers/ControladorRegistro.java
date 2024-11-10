@@ -8,7 +8,7 @@ import com.example.ProyectoWeb.service.ServicioRegistro;
 import com.example.ProyectoWeb.dto.RegistroDTO;
 import com.example.ProyectoWeb.exception.CamposInvalidosException;
 import com.example.ProyectoWeb.exception.CorreoRegistradoException;
-import com.example.ProyectoWeb.model.Usuario;
+
 
 import java.util.HashMap;
 import java.util.Map;

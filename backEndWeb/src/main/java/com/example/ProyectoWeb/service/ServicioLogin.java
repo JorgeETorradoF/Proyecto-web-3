@@ -5,10 +5,8 @@ import com.example.ProyectoWeb.dto.RespuestaLoginDTO;
 import com.example.ProyectoWeb.exception.CorreoNoExistenteException;
 import com.example.ProyectoWeb.model.Arrendadores;
 import com.example.ProyectoWeb.model.Arrendatarios;
-import com.example.ProyectoWeb.model.Usuario;
 import com.example.ProyectoWeb.repository.RepositorioArrendadores;
 import com.example.ProyectoWeb.repository.RepositorioArrendatarios;
-import com.example.ProyectoWeb.config.JWTTokenService;  // Asegúrate de que tengas este servicio
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,9 +19,6 @@ public class ServicioLogin {
 
     @Autowired
     private RepositorioArrendatarios repositorioArrendatarios;
-
-    @Autowired
-    private JWTTokenService jwtTokenService;  // El servicio que genera el token JWT
 
     public boolean contraseñaValida(String contraseña) {
         return !contraseña.isEmpty();

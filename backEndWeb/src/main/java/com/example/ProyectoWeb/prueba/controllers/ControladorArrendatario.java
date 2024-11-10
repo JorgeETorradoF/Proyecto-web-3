@@ -1,5 +1,6 @@
 package com.example.ProyectoWeb.prueba.controllers;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -15,21 +16,14 @@ import com.example.ProyectoWeb.dto.ContratoDTO;
 import com.example.ProyectoWeb.model.Contratos;
 import com.example.ProyectoWeb.service.ServicioContratos;
 import com.example.ProyectoWeb.service.ServicioPropiedad;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 @Controller
 @RequestMapping("/api/arrendatario/{id}")
 public class ControladorArrendatario {
 
-    private final ServicioContratos servicioContratos;
-    private final ServicioPropiedad servicioPropiedades;
-
-    public ControladorArrendatario(ServicioContratos servicioContratos, ServicioPropiedad servicioPropiedades)
-    {
-        this.servicioContratos = servicioContratos;
-        this.servicioPropiedades = servicioPropiedades;
-    }
+    @Autowired
+    private ServicioContratos servicioContratos;
 
     @PostMapping(value = "/solicitar-arriendo/{idPropiedad}", consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> solicitarArriendo(@PathVariable("id") int id, @PathVariable("idPropiedad") int idPropiedad, Model model,@RequestBody ContratoDTO contratoDTO)
