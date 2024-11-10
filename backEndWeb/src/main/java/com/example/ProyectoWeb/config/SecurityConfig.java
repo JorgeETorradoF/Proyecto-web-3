@@ -1,64 +1,65 @@
 package com.example.ProyectoWeb.config;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.OrRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.mvc.condition.RequestMethodsRequestCondition;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.example.ProyectoWeb.config.JWTAuthorizationFilter;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig implements ISecurityConfig {
-
-
-
+public class SecurityConfig {
 
     @Autowired
-    private JWTAuthorizationFilter jwtAuthorizationFilter;
+    private JWTAuthorizationFilter jwtFilter;
 
-	@Override
     @Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
-	@Override
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.applyPermitDefaultValues();
+        configuration.addAllowedOriginPattern("*");
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowCredentials(false);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
-	
-	@Override
     @Bean
-	public SecurityFilterChain configure(HttpSecurity http) throws Exception {
-        
-    
-        http.addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class).
-                                csrf(csrf -> csrf.ignoringRequestMatchers(ignoreSpecificRequests()));
-		return http.build();
-	}
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        return httpSecurity
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(c -> corsConfigurationSource())
+                .authorizeHttpRequests(request -> {
+                    // Endpoints que no requieren autenticación
+                    request.requestMatchers("/api/crear-cuenta", "/api/iniciar-sesion").permitAll();
+                    request.requestMatchers("GET", "/api/get-arrendatarios").permitAll();
+                    request.requestMatchers("GET", "/api/get-arrendadores").permitAll();
+                    request.requestMatchers("GET", "/api/get-propiedades").permitAll();
+                    
+                    
+                    // El resto de los endpoints requieren autenticación con token
+                    request.requestMatchers("/api/**").authenticated();
+                })
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exceptionHandling -> exceptionHandling.configure(httpSecurity))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
+    }
 
-
-	private RequestMatcher ignoreSpecificRequests() {
-        return new OrRequestMatcher(
-            // new AntPathRequestMatcher("/indicadoressuim/api/autenticacion"),
-            // new AntPathRequestMatcher("/indicadoressuim/api/peticion-mes"),
-            new AntPathRequestMatcher("/api/crear-cuenta", HttpMethod.POST.name()),
-            new AntPathRequestMatcher("/api/iniciar-sesion", HttpMethod.POST.name())
-        );
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 }

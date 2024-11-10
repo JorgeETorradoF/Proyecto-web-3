@@ -1,5 +1,6 @@
 package com.example.ProyectoWeb.repository;
 
+import com.example.ProyectoWeb.model.Arrendadores;
 import com.example.ProyectoWeb.model.Arrendatarios;
 
 import org.springframework.data.jpa.repository.Query;
@@ -14,4 +15,6 @@ public interface RepositorioArrendatarios extends CrudRepository<Arrendatarios, 
 
     @Query("SELECT a FROM Arrendatarios a WHERE a.correo = :correo")
     Arrendatarios findByCorreo(@Param("correo") String correo);
+    @Query("SELECT a FROM Arrendatarios a WHERE a.id = :id")
+    Arrendatarios findByCorreo(@Param("id") int id);
 }

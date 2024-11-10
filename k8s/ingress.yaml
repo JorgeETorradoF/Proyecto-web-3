@@ -11,13 +11,13 @@ spec:
     - host:   # vacío por ahora (localhost)
       http:
         paths:
-          - path: /api               # Prefijo para redirigir las solicitudes API al backend
+          - path: /api
             pathType: Prefix
             backend:
               service:
                 name: backend-service
                 port:
-                  number: 8080        # El backend expone el puerto 8080
+                  number: 8080
           - path: /
             pathType: Prefix
             backend:

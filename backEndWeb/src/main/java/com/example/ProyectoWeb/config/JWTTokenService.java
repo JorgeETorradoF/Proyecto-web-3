@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.example.ProyectoWeb.model.Usuario;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -56,11 +56,7 @@ public class JWTTokenService {
                 .compact();
     }
 
-    public String getUsername(String jwtToken){
-        return decodificarToken(jwtToken).getSubject();
-    }
-
-    public String getUserID(String jwtToken){
+    public String getUserId(String jwtToken){
         return decodificarToken(jwtToken).getSubject();
     }
     public Date getFechaExpiracion(String jwtToken){

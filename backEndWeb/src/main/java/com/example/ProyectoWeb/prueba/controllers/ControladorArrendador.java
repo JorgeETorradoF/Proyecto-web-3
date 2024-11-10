@@ -11,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.example.ProyectoWeb.config.JWTTokenService;
 import com.example.ProyectoWeb.dto.PropiedadDTO;
 import com.example.ProyectoWeb.exception.PropNoEncontradaException;
 import com.example.ProyectoWeb.exception.ContratoNoExistenteException;
@@ -18,6 +19,9 @@ import com.example.ProyectoWeb.model.Contratos;
 import com.example.ProyectoWeb.model.Propiedades;
 import com.example.ProyectoWeb.service.ServicioContratos;
 import com.example.ProyectoWeb.service.ServicioPropiedad;
+
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,77 +31,75 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 @Controller
-@RequestMapping("/api/arrendador/{id}")
+@RequestMapping("/api/arrendador")
 public class ControladorArrendador {
 
     @Autowired
     private ServicioPropiedad servicioPropiedad;
     @Autowired
     private ServicioContratos servicioContratos;
-    
+
+    @Autowired
+    JWTTokenService jwTokenService;
+
+    private static final String HEADER = "Authorization";
+
     private static final Logger logger = LoggerFactory.getLogger(ControladorArrendador.class);
 
     // Directorio raíz para guardar imágenes
     private static final String UPLOAD_DIRECTORY = System.getProperty("user.dir") + "/uploads/";
 
+    // Obtener la ID del usuario desde el contexto de seguridad
+    private int obtenerIdUsuario(String token) {
+        return Integer.parseInt(jwTokenService.getUserId(token));
+    }
+
     @PostMapping(value = "/registrar-propiedad", consumes = "multipart/form-data", produces = "application/json")
-public ResponseEntity<?> registrarPropiedad(
-        @PathVariable("id") int id,
-        @RequestPart("propiedadDTO") PropiedadDTO propiedadDTO,
-        @RequestPart("imagen") MultipartFile imagen,
-        Model model) {
+    public ResponseEntity<?> registrarPropiedad(
+            @RequestPart("propiedadDTO") PropiedadDTO propiedadDTO,
+            @RequestPart("imagen") MultipartFile imagen,
+            @RequestHeader(HEADER) String token) {
 
-    logger.info("Iniciando registro de propiedad para el arrendador con ID: {}", id);
-    propiedadDTO.setIdArrendador(id);
-    propiedadDTO.setEstado("activo");
+        int id = obtenerIdUsuario(token);  // Obtener la ID desde el contexto de seguridad
+        logger.info("Iniciando registro de propiedad para el arrendador con ID: {}", id);
+        propiedadDTO.setIdArrendador(id);
+        propiedadDTO.setEstado("activo");
 
-    // Logs detallados para inspeccionar cada campo del DTO
-    logger.info("PropiedadDTO.nombrePropiedad: {}", propiedadDTO.getNombrePropiedad());
-    logger.info("PropiedadDTO.departamento: {}", propiedadDTO.getDepartamento());
-    logger.info("PropiedadDTO.municipio: {}", propiedadDTO.getMunicipio());
-    logger.info("PropiedadDTO.tipoIngreso: {}", propiedadDTO.getTipoIngreso());
-    logger.info("PropiedadDTO.descripcion: {}", propiedadDTO.getDescripcion());
-    logger.info("PropiedadDTO.cantidadHabitaciones: {}", propiedadDTO.getCantidadHabitaciones());
-    logger.info("PropiedadDTO.cantidadBanos: {}", propiedadDTO.getCantidadBanos());
-    logger.info("PropiedadDTO.permiteMascotas: {}", propiedadDTO.isPermiteMascotas());
-    logger.info("PropiedadDTO.tienePiscina: {}", propiedadDTO.isTienePiscina());
-    logger.info("PropiedadDTO.tieneAsador: {}", propiedadDTO.isTieneAsador());
-    logger.info("PropiedadDTO.valorNoche: {}", propiedadDTO.getValorNoche());
+        try {
+            // Verifica si la imagen no está vacía
+            if (!imagen.isEmpty()) {
+                String directorioArrendador = UPLOAD_DIRECTORY + "arrendador_" + id;
+                File directorio = new File(directorioArrendador);
 
-    try {
-        // Verifica si la imagen no está vacía
-        if (!imagen.isEmpty()) {
-            String directorioArrendador = UPLOAD_DIRECTORY + "arrendador_" + id;
-            File directorio = new File(directorioArrendador);
+                if (!directorio.exists()) {
+                    directorio.mkdirs();
+                }
 
-            if (!directorio.exists()) {
-                directorio.mkdirs();
+                String nombreImagen = System.currentTimeMillis() + "_" + imagen.getOriginalFilename();
+                Path rutaImagen = Paths.get(directorioArrendador, nombreImagen);
+                Files.copy(imagen.getInputStream(), rutaImagen, StandardCopyOption.REPLACE_EXISTING);
+                propiedadDTO.setUrlImagen("/api/arrendador/imagenes/" + nombreImagen);
             }
 
-            String nombreImagen = System.currentTimeMillis() + "_" + imagen.getOriginalFilename();
-            Path rutaImagen = Paths.get(directorioArrendador, nombreImagen);
-            Files.copy(imagen.getInputStream(), rutaImagen, StandardCopyOption.REPLACE_EXISTING);
-            propiedadDTO.setUrlImagen("/api/arrendador/" + id + "/imagenes/" + nombreImagen);
+            // Guardar la propiedad
+            return ResponseEntity.ok(servicioPropiedad.savePropiedad(propiedadDTO));
+
+        } catch (IOException e) {
+            logger.error("Error al guardar la imagen para el arrendador con ID: {}. Detalles: {}", id, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al guardar la imagen: " + e.getMessage());
+        } catch (Exception e) {
+            logger.error("Error al registrar la propiedad para el arrendador con ID: {}. Detalles: {}", id, e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al registrar la propiedad: " + e.getMessage());
         }
-
-        // Guardar la propiedad
-        return ResponseEntity.ok(servicioPropiedad.savePropiedad(propiedadDTO));
-
-    } catch (IOException e) {
-        logger.error("Error al guardar la imagen para el arrendador con ID: {}. Detalles: {}", id, e.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al guardar la imagen: " + e.getMessage());
-    } catch (Exception e) {
-        logger.error("Error al registrar la propiedad para el arrendador con ID: {}. Detalles: {}", id, e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al registrar la propiedad: " + e.getMessage());
     }
-}
 
 
     // Método para servir imágenes guardadas
     @GetMapping("/imagenes/{nombreImagen}")
     @ResponseBody
-    public ResponseEntity<byte[]> obtenerImagen(@PathVariable("id") int id, @PathVariable("nombreImagen") String nombreImagen) {
+    public ResponseEntity<byte[]> obtenerImagen(@RequestHeader(HEADER) String token,@PathVariable("nombreImagen") String nombreImagen) {
         try {
+            int id = obtenerIdUsuario(token);
             Path rutaImagen = Paths.get(UPLOAD_DIRECTORY + "arrendador_" + id, nombreImagen);
             byte[] imagen = Files.readAllBytes(rutaImagen);
             return ResponseEntity.ok(imagen);
@@ -108,9 +110,9 @@ public ResponseEntity<?> registrarPropiedad(
 
     // Obtener todas las propiedades de un arrendador
     @GetMapping("/propiedades")
-    public @ResponseBody Iterable<Propiedades> getAllProperties(@PathVariable("id") int id, Model model) {
+    public @ResponseBody Iterable<Propiedades> getAllProperties(@RequestHeader(HEADER) String token) {
         try {
-            model.addAttribute("id", id);
+            int id = obtenerIdUsuario(token);
             return servicioPropiedad.getPropiedades(id);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error: ", e);

@@ -1,85 +1,70 @@
 package com.example.ProyectoWeb.config;
 
-import java.io.IOException;
-import java.util.Date;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.NonNull;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.example.ProyectoWeb.config.CustomUserDetailsService;
-import com.example.ProyectoWeb.config.JWTTokenService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import io.jsonwebtoken.Claims;
+
+import java.io.IOException;
+import java.util.Date;
 
 @Component
-@Service
-public class JWTAuthorizationFilter extends OncePerRequestFilter{
-
-
-    public static final String HEADER = "Authorization";
-	public static final String PREFIX = "Bearer ";
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public class JWTAuthorizationFilter extends OncePerRequestFilter {
 
     @Autowired
-	private CustomUserDetailsService userDetailsService;
-
+    JWTTokenService jwtTokenService;
     @Autowired
-    private JWTTokenService jwtTokenService;
+    private CustomUserDetailsService customUserDetailsService;
 
-	
+    @Override
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
+        try {
+            String jwtToken = obtenerToken(request);
+            if (jwtToken != null) {
+                Claims claims = jwtTokenService.decodificarToken(jwtToken);
+                if (claims.getExpiration().after(new Date())) {
+                    String username = claims.getSubject();
+                    UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+                    
+                    // Aquí estableces la autenticación en el contexto de seguridad
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    System.out.println("\nToken de username password authentication: "+authentication);
+                } else {
+                    throw new Exception("Token expirado");
+                }
+            }
+            System.out.println("\nse va pal otro");
+            filterChain.doFilter(request, response);
+        } catch (Exception e) {
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.getWriter().write("Error de autenticación: " + e.getMessage());
+        }
+    }
+    private String obtenerToken(HttpServletRequest request) {
+        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+        System.out.println("\nHeader value: " + header);
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.substring(7); // Elimina "Bearer " del encabezado
+        }
+        return null;
+    }
+    
 
-	@Override
-	protected void doFilterInternal( @NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws ServletException, IOException {
-		System.out.println( "-------->>>-------->>> Filtro"  );
-		System.out.println( "-------->>>-------->>> Filtro"  );
-		System.out.println( "-------->>>-------->>> Filtro"  );
-		System.out.println( "-------->>>-------->>> Filtro"  );
-		try {
-			if (existeJWTToken(request)) {
-				Claims claims = validarToken(request);
-				if (!(claims.getExpiration().after(new Date()))) {
-					String username = getUsername(request);
-					UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-					UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(username, userDetails, null);
-					auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-           			SecurityContextHolder.getContext().setAuthentication(auth);
-				} else {
-					SecurityContextHolder.clearContext();
-				}
-			} else {
-				SecurityContextHolder.clearContext();
-			}
-			chain.doFilter(request, response);
-		} catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | SignatureException e) {
-			response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
-		}
-	}	
-
-	private Claims validarToken(HttpServletRequest request) {
-		String jwtToken = request.getHeader(HEADER).replace(PREFIX, "");
-		return jwtTokenService.decodificarToken(jwtToken);
-	}
-	
-	private String getUsername(HttpServletRequest request) {
-		String jwtToken = request.getHeader(HEADER).replace(PREFIX, "");
-		return jwtTokenService.getUsername(jwtToken);
-	}
-	private boolean existeJWTToken(HttpServletRequest request) {
-		String authenticationHeader = request.getHeader(HEADER);
-		return !(authenticationHeader == null || !authenticationHeader.startsWith(PREFIX));
-	}
 }

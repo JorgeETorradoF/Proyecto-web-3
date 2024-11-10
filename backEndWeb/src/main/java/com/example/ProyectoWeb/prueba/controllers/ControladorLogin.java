@@ -10,7 +10,6 @@ import com.example.ProyectoWeb.dto.LoginDTO;
 import com.example.ProyectoWeb.dto.RespuestaLoginDTO;
 import com.example.ProyectoWeb.dto.UrlYTokenDTO;
 import com.example.ProyectoWeb.exception.CorreoNoExistenteException;
-import com.example.ProyectoWeb.model.RedirectResponse;
 
 import java.util.HashMap;
 import java.util.Map;

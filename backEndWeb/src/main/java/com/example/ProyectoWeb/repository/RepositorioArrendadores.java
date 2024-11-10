@@ -14,4 +14,7 @@ public interface RepositorioArrendadores extends CrudRepository<Arrendadores, In
 
     @Query("SELECT a FROM Arrendadores a WHERE a.correo = :correo")
     Arrendadores findByCorreo(@Param("correo") String correo);
+
+    @Query("SELECT a FROM Arrendadores a WHERE a.id = :id")
+    Arrendadores findByCorreo(@Param("id") int id);
 }
