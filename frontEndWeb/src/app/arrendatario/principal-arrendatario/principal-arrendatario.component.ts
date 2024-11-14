@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { PropiedadesService } from '../../services/propiedades.service';
 import { ActivatedRoute, Router } from '@angular/router';
 
-
 interface Propiedad {
   id: number;
   nombrePropiedad: string;
@@ -12,20 +11,20 @@ interface Propiedad {
   municipio: string;
   urlImagen: string;
   cantidadHabitaciones: number;
-  cantidadBanos: number;  
+  cantidadBanos: number;
 }
 
 @Component({
   selector: 'app-principal-arrendatario',
   templateUrl: './principal-arrendatario.component.html',
-  styleUrls: ['./principal-arrendatario.component.css']
+  styleUrls: ['./principal-arrendatario.component.css'],
 })
 export class PrincipalArrendatarioComponent implements OnInit {
   propiedades: Propiedad[] = [];
   filteredPropiedades: Propiedad[] = [];
   searchTerm: string = '';
   suggestions: string[] = [];
-  idArrendatario!: number;  // Se obtiene de la URL
+  idArrendatario!: number; // Se obtiene de la URL
   ip: string = 'localhost'; // IP del servidor backend
 
   constructor(
@@ -35,23 +34,32 @@ export class PrincipalArrendatarioComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Obtiene el id del arrendador desde la ruta (URL)
+    // Verificar si el token JWT está presente
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      console.warn('Token no encontrado. Redirigiendo a inicio de sesión.');
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    // Obtiene el id del arrendatario desde la ruta (URL)
     this.idArrendatario = +this.route.snapshot.paramMap.get('idArrendatario')!;
-    this.obtenerPropiedades(); // Llamamos para obtener las propiedades del arrendador
+    this.obtenerPropiedades(); // Llamamos para obtener las propiedades
   }
 
   getImagenUrl(nombreImagen: string): string {
     return `http://${this.ip}${nombreImagen}`;
   }
-  // Método para obtener las propiedades del arrendador
+
+  // Método para obtener todas las propiedades disponibles
   obtenerPropiedades() {
     this.propiedadesService.getAllPropiedades().subscribe(
-      data => {
+      (data) => {
         console.log('Propiedades obtenidas:', data);
         this.propiedades = data;
         this.filteredPropiedades = data; // Inicializamos las propiedades filtradas
       },
-      error => {
+      (error) => {
         console.error('Error al obtener propiedades:', error);
       }
     );
@@ -60,7 +68,7 @@ export class PrincipalArrendatarioComponent implements OnInit {
   // Métodos de búsqueda
   search() {
     const searchTermLower = this.searchTerm.toLowerCase();
-    this.filteredPropiedades = this.propiedades.filter(propiedad => 
+    this.filteredPropiedades = this.propiedades.filter((propiedad) =>
       propiedad.municipio.toLowerCase().includes(searchTermLower)
     );
   }
@@ -68,9 +76,11 @@ export class PrincipalArrendatarioComponent implements OnInit {
   updateSuggestions() {
     const searchTermLower = this.searchTerm.toLowerCase();
     this.suggestions = this.propiedades
-      .map(propiedad => propiedad.municipio)
-      .filter(ubicacion => ubicacion.toLowerCase().includes(searchTermLower))
-      .slice(0, 2); 
+      .map((propiedad) => propiedad.municipio)
+      .filter((ubicacion) =>
+        ubicacion.toLowerCase().includes(searchTermLower)
+      )
+      .slice(0, 2);
   }
 
   selectSuggestion(suggestion: string) {
@@ -78,7 +88,6 @@ export class PrincipalArrendatarioComponent implements OnInit {
     this.search();
     this.suggestions = []; // Limpia las sugerencias después de seleccionar
   }
-  
 }
 
 // import { Component, OnInit } from '@angular/core';

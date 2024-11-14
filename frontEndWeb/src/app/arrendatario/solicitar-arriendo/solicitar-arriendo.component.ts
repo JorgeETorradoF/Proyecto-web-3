@@ -54,6 +54,13 @@ export class SolicitarArriendoComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    const token = localStorage.getItem('authToken'); // Obtener el token JWT
+    if (!token) {
+      console.warn('Token no encontrado. Redirigiendo a inicio de sesión.');
+      this.router.navigate(['/login']);
+      return;
+    }
+
     this.idArrendatario = +this.route.snapshot.paramMap.get('idArrendatario')!;
     const propiedadId = this.route.snapshot.paramMap.get('idPropiedad');
     const idArrendador = this.route.snapshot.paramMap.get('idArrendador');
@@ -80,14 +87,12 @@ export class SolicitarArriendoComponent implements OnInit {
   onSubmit(): void {
     console.log('Datos de la solicitud antes del envío:', this.solicitud);
 
-    // Validación de la propiedad
     if (!this.propiedad) {
       alert('Propiedad no encontrada.');
       console.warn('No se encontró la propiedad al intentar enviar la solicitud.');
       return;
     }
 
-    // Validación de fechas antes del envío
     const fechaInicio = new Date(this.solicitud.fechaInicial);
     const fechaFinal = new Date(this.solicitud.fechaFinal);
 
@@ -103,7 +108,6 @@ export class SolicitarArriendoComponent implements OnInit {
       return;
     }
 
-    // Preparar la solicitud con formato correcto de fechas
     const solicitud: Solicitud = {
       fechaInicio: this.formatFechaISO(this.solicitud.fechaInicial),
       fechaFinal: this.formatFechaISO(this.solicitud.fechaFinal),
@@ -114,12 +118,9 @@ export class SolicitarArriendoComponent implements OnInit {
     console.log('Solicitud preparada para enviar:', solicitud);
 
     const idArrendador = this.route.snapshot.paramMap.get('idArrendador');
-
-    // Verificar que el ID del arrendador exista
     if (idArrendador) {
       console.log('ID de arrendador:', idArrendador, 'ID de propiedad:', this.propiedad.id);
 
-      // Enviar la solicitud al backend usando el servicio de contratos
       this.contratosService
         .solicitarArriendo(parseInt(idArrendador), this.propiedad.id, solicitud)
         .subscribe(
@@ -138,10 +139,9 @@ export class SolicitarArriendoComponent implements OnInit {
     }
   }
 
-  // Función para formatear las fechas en formato ISO con hora
   formatFechaISO(fecha: string): string {
     const date = new Date(fecha);
-    const isoDate = date.toISOString(); // Genera el formato ISO completo
+    const isoDate = date.toISOString();
     console.log('Fecha formateada en ISO:', isoDate);
     return isoDate;
   }
@@ -157,17 +157,16 @@ export class SolicitarArriendoComponent implements OnInit {
       console.error('Error: Las fechas no concuerdan.');
     }
   }
-  // Métodos de navegación a otras vistas
+
   navigateToVerContratos() {
     this.router.navigate([`/arrendatario/${this.idArrendatario}/contratos`]);
   }
 
   navigateToCalificar() {
     this.router.navigate([`/arrendatario/${this.idArrendatario}/calificar`]);
-  }  
+  }
 
-  navigateToPrincipal()
-  {
+  navigateToPrincipal() {
     this.router.navigate([`/arrendatario/${this.idArrendatario}`]);
   }
 }

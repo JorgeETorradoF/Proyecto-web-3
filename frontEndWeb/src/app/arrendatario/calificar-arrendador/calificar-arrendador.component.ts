@@ -1,10 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UsuarioService } from '../../services/usuario.service';
 import { CalificacionService } from '../../services/calificacion.service';
-import { Observable } from 'rxjs';
 
 interface Arrendador {
   id: number;
@@ -35,8 +32,17 @@ export class CalificarArrendadorComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    // Validar token JWT
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      console.warn('Token no encontrado. Redirigiendo a inicio de sesión.');
+      this.router.navigate(['/login']);
+      return;
+    }
+
     this.idArrendatario = +this.route.snapshot.paramMap.get('idArrendatario')!;
-    // Aquí puedes cargar los arrendadores por calificar a través del servicio
+
+    // Cargar los arrendadores por calificar a través del servicio
     this.usuarioService.getAllArrendadores().subscribe(
       (data: Arrendador[]) => {
         this.arrendadoresPorCalificar = data;
@@ -75,7 +81,7 @@ export class CalificarArrendadorComponent implements OnInit {
       );
     }
   }
-  
+
   // Métodos de navegación a otras vistas
   navigateToVerContratos() {
     this.router.navigate([`/arrendatario/${this.idArrendatario}/contratos`]);
@@ -83,10 +89,9 @@ export class CalificarArrendadorComponent implements OnInit {
 
   navigateToCalificar() {
     this.router.navigate([`/arrendatario/${this.idArrendatario}/calificar`]);
-  }  
-  
-  navigateToPrincipal()
-  {
+  }
+
+  navigateToPrincipal() {
     this.router.navigate([`/arrendatario/${this.idArrendatario}`]);
   }
 }

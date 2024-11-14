@@ -27,7 +27,7 @@ export class EditarPropiedadComponent implements OnInit {
   idArrendador!: number;
   idPropiedad!: number;
   nuevaImagen: string | ArrayBuffer | null = null; // Para la vista previa de la nueva imagen
-  ip: string = "localhost";
+  ip: string = 'localhost';
 
   editarCampos: { [key: string]: boolean } = {}; // Control de edición por campo
 
@@ -37,10 +37,16 @@ export class EditarPropiedadComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private propiedadesService: PropiedadesService
-  ) {
-  }
+  ) {}
 
   ngOnInit(): void {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      console.error('Token no encontrado. Redirigiendo a inicio de sesión.');
+      this.router.navigate(['/login']);
+      return;
+    }
+
     this.idArrendador = +this.route.snapshot.paramMap.get('idArrendador')!;
     this.idPropiedad = +this.route.snapshot.paramMap.get('idPropiedad')!;
 
@@ -55,7 +61,13 @@ export class EditarPropiedadComponent implements OnInit {
       },
       (error) => {
         console.error('Error al cargar la propiedad:', error);
-        alert('No se pudo cargar la propiedad. Intente más tarde.');
+        if (error.status === 401) {
+          console.warn('Token no válido o expirado. Redirigiendo a inicio de sesión.');
+          localStorage.removeItem('token');
+          this.router.navigate(['/login']);
+        } else {
+          alert('No se pudo cargar la propiedad. Intente más tarde.');
+        }
       }
     );
   }
@@ -93,6 +105,11 @@ export class EditarPropiedadComponent implements OnInit {
           },
           (error) => {
             console.error('Error al actualizar la propiedad:', error);
+            if (error.status === 401) {
+              console.warn('Token no válido o expirado. Redirigiendo a inicio de sesión.');
+              localStorage.removeItem('token');
+              this.router.navigate(['/login']);
+            }
           }
         );
     } else {

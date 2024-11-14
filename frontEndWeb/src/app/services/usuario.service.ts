@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 interface Usuario {
@@ -9,15 +9,14 @@ interface Usuario {
   contraseña: string;
   correo: string;
   promedio: number;
-  cantiCalif: number
+  cantiCalif: number;
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UsuarioService {
-
-  private baseUrl: string = 'http://localhost/api'; 
+  private baseUrl: string = 'http://localhost/api';
 
   constructor(private http: HttpClient) {}
 
@@ -26,13 +25,25 @@ export class UsuarioService {
     this.baseUrl = `http://${ip}/api`;
   }
 
+  // Método para obtener los headers con el token JWT
+  private getHeaders(): HttpHeaders {
+    const token = localStorage.getItem('authToken'); // Obtén el token del almacenamiento local
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`, // Agrega el token en el header Authorization
+    });
+  }
+
   // Método para conseguir a los arrendadores
-  getAllArrendadores() {
-    return this.http.get<Usuario[]>(`${this.baseUrl}/get-arrendadores`);
+  getAllArrendadores(): Observable<Usuario[]> {
+    return this.http.get<Usuario[]>(`${this.baseUrl}/get-arrendadores`, {
+      headers: this.getHeaders(),
+    });
   }
 
   // Método para conseguir a los arrendatarios
-  getAllArrendatarios() {
-    return this.http.get<Usuario[]>(`${this.baseUrl}/get-arrendatarios`);
+  getAllArrendatarios(): Observable<Usuario[]> {
+    return this.http.get<Usuario[]>(`${this.baseUrl}/get-arrendatarios`, {
+      headers: this.getHeaders(),
+    });
   }
 }
