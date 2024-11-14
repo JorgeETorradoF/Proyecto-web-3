@@ -33,13 +33,27 @@ export class CalificarArrendatarioComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    // Verificar si el token está presente
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      console.error('Token no encontrado. Redirigiendo a inicio de sesión.');
+      this.router.navigate(['/login']); // Redirigir al inicio de sesión si no hay token
+      return;
+    }
+
     // Cargar los arrendatarios por calificar a través del servicio
     this.usuarioService.getAllArrendatarios().subscribe(
       (data: Arrendatario[]) => {
         this.arrendatariosPorCalificar = data;
+        console.log('Arrendatarios cargados:', this.arrendatariosPorCalificar);
       },
       (error) => {
         console.error('Error al cargar arrendatarios:', error);
+        if (error.status === 401) {
+          console.warn('Token no válido o expirado. Redirigiendo a inicio de sesión.');
+          localStorage.removeItem('token'); // Remover token inválido
+          this.router.navigate(['/login']);
+        }
       }
     );
   }
@@ -67,7 +81,13 @@ export class CalificarArrendatarioComponent implements OnInit {
         },
         (error) => {
           console.error('Error al enviar la calificación:', error);
-          alert('Error al enviar la calificación.');
+          if (error.status === 401) {
+            console.warn('Token no válido o expirado. Redirigiendo a inicio de sesión.');
+            localStorage.removeItem('token'); // Remover token inválido
+            this.router.navigate(['/login']);
+          } else {
+            alert('Error al enviar la calificación.');
+          }
         }
       );
     }

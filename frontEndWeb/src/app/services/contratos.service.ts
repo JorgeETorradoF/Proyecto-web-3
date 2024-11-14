@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 interface Contract {
@@ -18,47 +18,54 @@ interface Solicitud {
   enConflicto: boolean;
 }
 
-
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ContratosService {
-  private baseUrl: string = 'http://localhost/api'; // Inicialmente vacío
+  private baseUrl: string = 'http://localhost/api'; // Base URL inicial
 
   constructor(private http: HttpClient) {}
 
-  // Método para configurar la IP
-  setIp(ip: string) {
-    this.baseUrl = `http://${ip}/api`; // Se configura la url con base en la ip que se provee
+  // Método para configurar la IP del servidor backend
+  setIp(ip: string): void {
+    this.baseUrl = `http://${ip}/api`; // Actualiza la base URL según la IP configurada
   }
 
-  // Método para obtener contratos por ID de arrendador
+  // Método para obtener headers con el token JWT
+  private getHeaders(): HttpHeaders {
+    const token = localStorage.getItem('authToken'); // Obtener el token almacenado en localStorage
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`, // Agregar el token al encabezado Authorization
+    });
+  }
+
+  // Obtener contratos por ID de arrendador
   getContratosArrendador(idArrendador: number): Observable<Contract[]> {
-    return this.http.get<Contract[]>(`${this.baseUrl}/arrendador/${idArrendador}/mis-contratos`);
+    const url = `${this.baseUrl}/arrendador/${idArrendador}/mis-contratos`;
+    return this.http.get<Contract[]>(url, { headers: this.getHeaders() });
   }
 
-  // Método para aceptar un contrato
+  // Aceptar contrato
   aceptarContrato(idArrendador: number, idContrato: number): Observable<any> {
     const url = `${this.baseUrl}/arrendador/${idArrendador}/aceptar-contrato/${idContrato}`;
-    return this.http.put<any>(url, {});
+    return this.http.put<any>(url, {}, { headers: this.getHeaders() });
   }
 
-  // Método para rechazar un contrato
+  // Rechazar contrato
   rechazarContrato(idArrendador: number, idContrato: number): Observable<any> {
     const url = `${this.baseUrl}/arrendador/${idArrendador}/rechazar-contrato/${idContrato}`;
-    return this.http.put<any>(url, {});
+    return this.http.put<any>(url, {}, { headers: this.getHeaders() });
   }
 
-  // Método para obtener contratos por ID de arrendatario
+  // Obtener contratos por ID de arrendatario
   getContratosArrendatario(idArrendatario: number): Observable<Contract[]> {
-    return this.http.get<Contract[]>(`${this.baseUrl}/arrendatario/${idArrendatario}/mis-contratos`);
+    const url = `${this.baseUrl}/arrendatario/${idArrendatario}/mis-contratos`;
+    return this.http.get<Contract[]>(url, { headers: this.getHeaders() });
   }
 
+  // Solicitar arriendo
   solicitarArriendo(idArrendador: number, idPropiedad: number, solicitud: Solicitud): Observable<any> {
-    return this.http.post<any>(
-      `${this.baseUrl}/arrendatario/${idArrendador}/solicitar-arriendo/${idPropiedad}`,
-      solicitud
-    );
+    const url = `${this.baseUrl}/arrendatario/${idArrendador}/solicitar-arriendo/${idPropiedad}`;
+    return this.http.post<any>(url, solicitud, { headers: this.getHeaders() });
   }
-
 }

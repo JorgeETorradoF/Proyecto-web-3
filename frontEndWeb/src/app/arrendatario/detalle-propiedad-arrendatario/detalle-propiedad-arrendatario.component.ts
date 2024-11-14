@@ -19,7 +19,6 @@ interface Propiedad {
   idArrendador?: number;
 }
 
-
 @Component({
   selector: 'app-detalle-propiedad-arrendatario',
   templateUrl: './detalle-propiedad-arrendatario.component.html',
@@ -37,6 +36,15 @@ export class DetallePropiedadArrendatarioComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Validar token JWT
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      console.warn('Token no encontrado. Redirigiendo a inicio de sesión.');
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    // Obtener ID de arrendatario y propiedad de la URL
     this.idArrendatario = +this.route.snapshot.paramMap.get('idArrendatario')!;
     const propiedadId = this.route.snapshot.paramMap.get('idPropiedad');
     if (propiedadId) {
@@ -51,6 +59,7 @@ export class DetallePropiedadArrendatarioComponent implements OnInit {
     this.propiedadesService.getPropiedad(1, this.idPropiedad).subscribe(
       (propiedad) => {
         this.propiedad = propiedad;
+        console.log('Propiedad cargada:', propiedad);
       },
       (error) => {
         console.error('Error al cargar la propiedad:', error);
@@ -59,16 +68,18 @@ export class DetallePropiedadArrendatarioComponent implements OnInit {
   }
 
   redirigirSolicitarArriendo(idArrendador: number): void {
-    console.log(`Redirigiendo a solicitar arriendo con idArrendador: ${idArrendador} y idPropiedad: ${this.idPropiedad}`);
+    console.log(
+      `Redirigiendo a solicitar arriendo con idArrendador: ${idArrendador} y idPropiedad: ${this.idPropiedad}`
+    );
     this.router.navigate([
-      `/arrendatario/${this.idArrendatario}/solicitar-arriendo/${this.idPropiedad}/${idArrendador}`
+      `/arrendatario/${this.idArrendatario}/solicitar-arriendo/${this.idPropiedad}/${idArrendador}`,
     ]);
   }
-
 
   getImagenUrl(url: string | null): string {
     return url ?? '../../../assets/images/finca.webp';
   }
+
   // Métodos de navegación a otras vistas
   navigateToVerContratos() {
     this.router.navigate([`/arrendatario/${this.idArrendatario}/contratos`]);
@@ -76,10 +87,9 @@ export class DetallePropiedadArrendatarioComponent implements OnInit {
 
   navigateToCalificar() {
     this.router.navigate([`/arrendatario/${this.idArrendatario}/calificar`]);
-  }  
-  
-  navigateToPrincipal()
-  {
+  }
+
+  navigateToPrincipal() {
     this.router.navigate([`/arrendatario/${this.idArrendatario}`]);
   }
 }

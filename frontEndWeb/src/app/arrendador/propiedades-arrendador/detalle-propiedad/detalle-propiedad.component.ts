@@ -11,23 +11,29 @@ export class DetallePropiedadComponent implements OnInit {
   propiedad: any = {};
   idArrendador!: number;
   idPropiedad!: number;
-  ip: string = "localhost";
+  ip: string = 'localhost';
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private propiedadesService: PropiedadesService
-  ) {
-  }
+  ) {}
 
   ngOnInit(): void {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      console.error('Token no encontrado. Redirigiendo a inicio de sesión.');
+      this.router.navigate(['/login']);
+      return;
+    }
+
     this.idArrendador = +this.route.snapshot.paramMap.get('idArrendador')!;
     this.idPropiedad = +this.route.snapshot.paramMap.get('idPropiedad')!;
 
     if (this.idArrendador && this.idPropiedad) {
       this.obtenerDetallePropiedad(this.idArrendador, this.idPropiedad);
     } else {
-      console.error('Error: ID del arrendador o de la propiedad no encontrado');
+      console.error('Error: ID del arrendador o de la propiedad no encontrado.');
       this.router.navigate(['/arrendador/1/propiedades']);
     }
   }
@@ -40,16 +46,24 @@ export class DetallePropiedadComponent implements OnInit {
       },
       (error) => {
         console.error('Error al obtener los detalles de la propiedad:', error);
+        if (error.status === 401) {
+          console.warn('Token no válido o expirado. Redirigiendo a inicio de sesión.');
+          localStorage.removeItem('token');
+          this.router.navigate(['/login']);
+        }
       }
     );
   }
+
   editarPropiedad(idPropiedad: number): void {
     this.router.navigate([`/arrendador/${this.idArrendador}/propiedades/editar-propiedad/${idPropiedad}`]);
   }
+
   volver(): void {
     const idArrendador = +this.route.snapshot.paramMap.get('idArrendador')!;
     this.router.navigate([`/arrendador/${idArrendador}/propiedades`]);
   }
+
   getImagenUrl(nombreImagen: string): string {
     return `http://${this.ip}${nombreImagen}`;
   }

@@ -58,7 +58,14 @@ export class CrearPropiedadComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.propiedadesService.setIp('localhost');
+    // Verificar si el token existe
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      console.error('Token no encontrado. Redirigiendo a inicio de sesión.');
+      this.router.navigate(['/login']);
+      return;
+    }
+
     this.idArrendador = +this.route.snapshot.paramMap.get('idArrendador')!;
   }
 
@@ -112,27 +119,29 @@ export class CrearPropiedadComponent implements OnInit {
       tipoIngreso: this.propiedad.tipoIngreso.trim(),
       cantidadHabitaciones: this.propiedad.cantidadHabitaciones ? this.propiedad.cantidadHabitaciones.toString() : '1',
       cantidadBanos: this.propiedad.cantidadBanos ? this.propiedad.cantidadBanos.toString() : '0',
-      permiteMascotas: this.propiedad.permiteMascotas ? this.propiedad.permiteMascotas.toString() : 'false',
-      tienePiscina: this.propiedad.tienePiscina ? this.propiedad.tienePiscina.toString() : 'false',
-      tieneAsador: this.propiedad.tieneAsador ? this.propiedad.tieneAsador.toString() : 'false',
-   };
+      permiteMascotas: this.propiedad.permiteMascotas.toString(),
+      tienePiscina: this.propiedad.tienePiscina.toString(),
+      tieneAsador: this.propiedad.tieneAsador.toString(),
+    };
 
-
-    formData.append('propiedadDTO', new Blob([JSON.stringify(propiedadDTO)], { type: "application/json" }));
+    formData.append('propiedadDTO', new Blob([JSON.stringify(propiedadDTO)], { type: 'application/json' }));
 
     // Llama al servicio para crear la propiedad con la imagen y los datos
     this.propiedadesService.crearPropiedadConImagen(this.idArrendador, formData).subscribe(
-      data => {
+      (data) => {
         console.log('Propiedad creada:', data);
-        // Redirigir a la lista de propiedades después de crearla
         this.router.navigate([`/arrendador/${this.idArrendador}/propiedades`]);
       },
-      error => {
+      (error) => {
         console.error('Error al crear propiedad:', error);
+        if (error.status === 401) {
+          console.warn('Token no válido o expirado. Redirigiendo a inicio de sesión.');
+          localStorage.removeItem('token');
+          this.router.navigate(['/login']);
+        }
       }
     );
   }
-
 
   // Método que se invocará al enviar el formulario
   onSubmit() {
@@ -145,14 +154,15 @@ export class CrearPropiedadComponent implements OnInit {
     this.selectedFile = null;
   }
 
+  // Método para cancelar la creación de propiedad
   cancelar() {
     if (confirm('¿Está seguro que desea cancelar? Los cambios no guardados se perderán.')) {
       this.router.navigate([`/arrendador/${this.idArrendador}/propiedades`]);
     }
   }
 
+  // Método para eliminar una imagen seleccionada
   removeImage(index: number) {
     this.imagenes.splice(index, 1);
   }
-
 }

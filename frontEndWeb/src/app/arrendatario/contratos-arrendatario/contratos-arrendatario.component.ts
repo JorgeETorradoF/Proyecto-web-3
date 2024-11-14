@@ -3,13 +3,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ContratosService } from '../../services/contratos.service'; // Importa el servicio
 
 interface Contract {
-  fechaInicio: string; 
-  fechaFinal: string;   
-  id: number;          
-  idPropiedad: number; 
-  idArrendatario: number; 
-  estado: number;      
-  precio: number;     
+  fechaInicio: string;
+  fechaFinal: string;
+  id: number;
+  idPropiedad: number;
+  idArrendatario: number;
+  estado: number;
+  precio: number;
 }
 
 @Component({
@@ -20,9 +20,21 @@ interface Contract {
 export class ContratosArrendatarioComponent implements OnInit {
   contratos: Contract[] = []; // Array para almacenar los contratos
   idArrendatario!: number; // ID del Arrendatario
-  constructor(private route: ActivatedRoute, private router: Router, private contratosService: ContratosService) {}
+
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private contratosService: ContratosService
+  ) {}
 
   ngOnInit() {
+    // Validar token JWT
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      console.warn('Token no encontrado. Redirigiendo a inicio de sesión.');
+      this.router.navigate(['/login']);
+      return;
+    }
 
     // Obtener el ID del Arrendatario de la URL
     this.idArrendatario = +this.route.snapshot.paramMap.get('idArrendatario')!;
@@ -53,20 +65,20 @@ export class ContratosArrendatarioComponent implements OnInit {
       case 0:
         return 'Pendiente';
       default:
-        return 'Desconocido'; // siempre estára entre los 3 primeros pero el compilador jode si no hay un default :'v
+        return 'Desconocido'; // Siempre estará entre los 3 primeros pero el compilador jode si no hay un default :'v
     }
   }
-    // Métodos de navegación a otras vistas
-    navigateToVerContratos() {
-      this.router.navigate([`/arrendatario/${this.idArrendatario}/contratos`]);
-    }
-  
-    navigateToCalificar() {
-      this.router.navigate([`/arrendatario/${this.idArrendatario}/calificar`]);
-    }  
-    
-    navigateToPrincipal()
-    {
-      this.router.navigate([`/arrendatario/${this.idArrendatario}`]);
-    }
+
+  // Métodos de navegación a otras vistas
+  navigateToVerContratos() {
+    this.router.navigate([`/arrendatario/${this.idArrendatario}/contratos`]);
+  }
+
+  navigateToCalificar() {
+    this.router.navigate([`/arrendatario/${this.idArrendatario}/calificar`]);
+  }
+
+  navigateToPrincipal() {
+    this.router.navigate([`/arrendatario/${this.idArrendatario}`]);
+  }
 }
