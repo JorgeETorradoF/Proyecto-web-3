@@ -38,8 +38,6 @@ public class JWTTokenService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
-        System.out.println(userID  );
 
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
@@ -58,6 +56,7 @@ public class JWTTokenService {
     }
 
     public String getUserId(String jwtToken){
+        System.out.println("\nsubject: "+decodificarToken(jwtToken).getSubject());
         return decodificarToken(jwtToken).getSubject();
     }
     public Date getFechaExpiracion(String jwtToken){

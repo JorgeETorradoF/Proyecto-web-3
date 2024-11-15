@@ -26,8 +26,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(requests -> requests
-                .requestMatchers("/api/crear-cuenta", "/api/iniciar-sesion", "/api/get-arrendadores", 
-                                 "/api/get-arrendatarios", "/api/get-propiedades").permitAll() // Permitir acceso a las rutas específicas de API
+                .requestMatchers("/api/**").permitAll() // Permitir acceso a las rutas específicas de API
                 .anyRequest().authenticated() // Requerir autenticación para cualquier otra solicitud
             ).exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthEntryPoint));
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

@@ -11,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.example.ProyectoWeb.config.JWTTokenService;
 import com.example.ProyectoWeb.dto.PropiedadDTO;
 import com.example.ProyectoWeb.exception.PropNoEncontradaException;
 import com.example.ProyectoWeb.exception.ContratoNoExistenteException;
@@ -27,9 +28,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
+
 @Controller
-@RequestMapping("/api/arrendador/{id}")
-public class ControladorArrendador {
+@RequestMapping("/api/arrendador")
+public class ControladorArrendador extends ControladorUsuarioTemplate{
 
     @Autowired
     private ServicioPropiedad servicioPropiedad;
@@ -42,12 +44,16 @@ public class ControladorArrendador {
     private static final String UPLOAD_DIRECTORY = System.getProperty("user.dir") + "/uploads/";
     
 
-
     @PostMapping(value = "/registrar-propiedad", consumes = "multipart/form-data", produces = "application/json")
     public ResponseEntity<?> registrarPropiedad(
             @RequestPart("propiedadDTO") PropiedadDTO propiedadDTO,
             @RequestPart("imagen") MultipartFile imagen,
-            @PathVariable("id") int id) {
+            @RequestHeader("Authorization") String token)  {
+
+                int id = super.getUserID(token);
+                if (id == -1) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(FALTAAUTORIZACIONMSG);
+                }
         logger.info("Iniciando registro de propiedad para el arrendador con ID: {}", id);
         propiedadDTO.setIdArrendador(id);
         propiedadDTO.setEstado("activo");
@@ -84,7 +90,12 @@ public class ControladorArrendador {
     // Método para servir imágenes guardadas
     @GetMapping("/imagenes/{nombreImagen}")
     @ResponseBody
-    public ResponseEntity<byte[]> obtenerImagen(@PathVariable("id") String id,@PathVariable("nombreImagen") String nombreImagen) {
+    public ResponseEntity<byte[]> obtenerImagen(@PathVariable("nombreImagen") String nombreImagen,@RequestHeader("Authorization") String token)  {
+
+        int id = super.getUserID(token);
+        if (id == -1) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
         try {
             Path rutaImagen = Paths.get(UPLOAD_DIRECTORY + "arrendador_" + id, nombreImagen);
             byte[] imagen = Files.readAllBytes(rutaImagen);
@@ -96,9 +107,14 @@ public class ControladorArrendador {
 
     // Obtener todas las propiedades de un arrendador
     @GetMapping("/propiedades")
-    public @ResponseBody Iterable<Propiedades> getAllProperties(@PathVariable int id) {
+    public @ResponseBody ResponseEntity<?> getAllProperties(@RequestHeader("Authorization") String token)  {
+
+        int id = super.getUserID(token);
+        if (id == -1) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
         try {
-            return servicioPropiedad.getPropiedades(id);
+            return ResponseEntity.ok(servicioPropiedad.getPropiedades(id));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error: ", e);
         }
@@ -107,13 +123,15 @@ public class ControladorArrendador {
     // Modificar propiedad existente
     @PutMapping("/modificar-propiedad/{propId}")
     public ResponseEntity<?> modificarPropiedad(
-            @PathVariable("id") int id,
             @PathVariable("propId") int propId,
             @RequestBody PropiedadDTO propiedadDTO,
-            Model model) {
+            @RequestHeader("Authorization") String token)  {
 
-        model.addAttribute("id", id);
-        model.addAttribute("propId", propId);
+                int id = super.getUserID(token);
+                if (id == -1) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(FALTAAUTORIZACIONMSG);
+                }
+
         propiedadDTO.setIdArrendador(id);
 
         try {
@@ -134,7 +152,12 @@ public class ControladorArrendador {
 
     // Mostrar detalle de una propiedad
     @GetMapping("/propiedad/{propiedadId}")
-    public ResponseEntity<?> mostrarDetallePropiedad(@PathVariable("id") int id, @PathVariable("propiedadId") int propiedadId, Model model) {
+    public ResponseEntity<?> mostrarDetallePropiedad(@PathVariable("propiedadId") int propiedadId, @RequestHeader("Authorization") String token)  {
+
+        int id = super.getUserID(token);
+        if (id == -1) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(FALTAAUTORIZACIONMSG);
+        }
         try {
             return ResponseEntity.ok(servicioPropiedad.getPropiedad(propiedadId, id));
         } catch (PropNoEncontradaException e) {
@@ -144,14 +167,28 @@ public class ControladorArrendador {
 
     // Obtener contratos del arrendador
     @GetMapping("/mis-contratos")
-    public @ResponseBody Iterable<Contratos> getContratos(@PathVariable("id") int id, Model model) {
-        model.addAttribute("id", id);
-        return servicioContratos.getContratosArrendador(id);
+    public @ResponseBody ResponseEntity<?> getContratos(@RequestHeader("Authorization") String token)  {
+
+        int id = super.getUserID(token);
+        if (id == -1) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(FALTAAUTORIZACIONMSG);
+        }
+        try {
+            Iterable<Contratos> contratos = servicioContratos.getContratosArrendador(id);
+            return ResponseEntity.ok(contratos);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al obtener los contratos: " + e.getMessage());
+        }
     }
 
     // Aceptar contrato
     @PutMapping("/aceptar-contrato/{contratoId}")
-    public ResponseEntity<?> aceptarContrato(@PathVariable("id") int id, @PathVariable("contratoId") int contratoId) {
+    public ResponseEntity<?> aceptarContrato(@PathVariable("contratoId") int contratoId,@RequestHeader("Authorization") String token)  {
+
+        int id = super.getUserID(token);
+        if (id == -1) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(FALTAAUTORIZACIONMSG);
+        }
         try {
             Contratos contratoAceptado = servicioContratos.aceptarContrato(contratoId);
             return ResponseEntity.ok(contratoAceptado);
@@ -162,7 +199,12 @@ public class ControladorArrendador {
 
     // Rechazar contrato
     @PutMapping("/rechazar-contrato/{contratoId}")
-    public ResponseEntity<?> rechazarContrato(@PathVariable("id") int id, @PathVariable("contratoId") int contratoId) {
+    public ResponseEntity<?> rechazarContrato(@PathVariable("contratoId") int contratoId,@RequestHeader("Authorization") String token)  {
+
+        int id = super.getUserID(token);
+        if (id == -1) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(FALTAAUTORIZACIONMSG);
+        }
         try {
             Contratos contratoRechazado = servicioContratos.rechazarContrato(contratoId);
             return ResponseEntity.ok(contratoRechazado);

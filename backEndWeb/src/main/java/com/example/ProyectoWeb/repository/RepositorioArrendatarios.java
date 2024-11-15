@@ -1,6 +1,6 @@
 package com.example.ProyectoWeb.repository;
 
-import com.example.ProyectoWeb.model.Arrendadores;
+
 import com.example.ProyectoWeb.model.Arrendatarios;
 
 import org.springframework.data.jpa.repository.Query;
