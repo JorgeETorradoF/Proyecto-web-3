@@ -3,12 +3,17 @@ package com.example.ProyectoWeb.prueba.controllers;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.example.ProyectoWeb.config.JWTTokenService;
 
 public class ControladorUsuarioTemplate {
     
-    protected static final String FALTAAUTORIZACIONMSG = "No autorizado para realizar esta acción";
+    protected static final String TOKENINVALIDOMSG = "Token inválido";
+
+    protected static final String NOAUTENTICADOMSG = "Usuario no autenticado";
     
     @Autowired
     private JWTTokenService jwtTokenService;
@@ -25,4 +30,9 @@ public class ControladorUsuarioTemplate {
     }
     return -1;
     }
+    public boolean isAuthenticated() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    return authentication != null && authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken);
+}
+
 }

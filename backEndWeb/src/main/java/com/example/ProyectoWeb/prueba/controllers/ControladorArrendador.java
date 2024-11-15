@@ -50,9 +50,12 @@ public class ControladorArrendador extends ControladorUsuarioTemplate{
             @RequestPart("imagen") MultipartFile imagen,
             @RequestHeader("Authorization") String token)  {
 
+                if (!super.isAuthenticated()) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
+                }
                 int id = super.getUserID(token);
                 if (id == -1) {
-                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(FALTAAUTORIZACIONMSG);
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(TOKENINVALIDOMSG);
                 }
         logger.info("Iniciando registro de propiedad para el arrendador con ID: {}", id);
         propiedadDTO.setIdArrendador(id);
@@ -90,8 +93,11 @@ public class ControladorArrendador extends ControladorUsuarioTemplate{
     // Método para servir imágenes guardadas
     @GetMapping("/imagenes/{nombreImagen}")
     @ResponseBody
-    public ResponseEntity<byte[]> obtenerImagen(@PathVariable("nombreImagen") String nombreImagen,@RequestHeader("Authorization") String token)  {
+    public ResponseEntity<?> obtenerImagen(@PathVariable("nombreImagen") String nombreImagen,@RequestHeader("Authorization") String token)  {
 
+        if (!super.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
+        }
         int id = super.getUserID(token);
         if (id == -1) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -109,6 +115,9 @@ public class ControladorArrendador extends ControladorUsuarioTemplate{
     @GetMapping("/propiedades")
     public @ResponseBody ResponseEntity<?> getAllProperties(@RequestHeader("Authorization") String token)  {
 
+        if (!super.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
+        }
         int id = super.getUserID(token);
         if (id == -1) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -127,9 +136,12 @@ public class ControladorArrendador extends ControladorUsuarioTemplate{
             @RequestBody PropiedadDTO propiedadDTO,
             @RequestHeader("Authorization") String token)  {
 
+                if (!super.isAuthenticated()) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
+                }
                 int id = super.getUserID(token);
                 if (id == -1) {
-                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(FALTAAUTORIZACIONMSG);
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(TOKENINVALIDOMSG);
                 }
 
         propiedadDTO.setIdArrendador(id);
@@ -154,9 +166,12 @@ public class ControladorArrendador extends ControladorUsuarioTemplate{
     @GetMapping("/propiedad/{propiedadId}")
     public ResponseEntity<?> mostrarDetallePropiedad(@PathVariable("propiedadId") int propiedadId, @RequestHeader("Authorization") String token)  {
 
+        if (!super.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
+        }
         int id = super.getUserID(token);
         if (id == -1) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(FALTAAUTORIZACIONMSG);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(TOKENINVALIDOMSG);
         }
         try {
             return ResponseEntity.ok(servicioPropiedad.getPropiedad(propiedadId, id));
@@ -169,9 +184,12 @@ public class ControladorArrendador extends ControladorUsuarioTemplate{
     @GetMapping("/mis-contratos")
     public @ResponseBody ResponseEntity<?> getContratos(@RequestHeader("Authorization") String token)  {
 
+        if (!super.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
+        }
         int id = super.getUserID(token);
         if (id == -1) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(FALTAAUTORIZACIONMSG);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(TOKENINVALIDOMSG);
         }
         try {
             Iterable<Contratos> contratos = servicioContratos.getContratosArrendador(id);
@@ -185,9 +203,12 @@ public class ControladorArrendador extends ControladorUsuarioTemplate{
     @PutMapping("/aceptar-contrato/{contratoId}")
     public ResponseEntity<?> aceptarContrato(@PathVariable("contratoId") int contratoId,@RequestHeader("Authorization") String token)  {
 
+        if (!super.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
+        }
         int id = super.getUserID(token);
         if (id == -1) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(FALTAAUTORIZACIONMSG);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(TOKENINVALIDOMSG);
         }
         try {
             Contratos contratoAceptado = servicioContratos.aceptarContrato(contratoId);
@@ -201,9 +222,12 @@ public class ControladorArrendador extends ControladorUsuarioTemplate{
     @PutMapping("/rechazar-contrato/{contratoId}")
     public ResponseEntity<?> rechazarContrato(@PathVariable("contratoId") int contratoId,@RequestHeader("Authorization") String token)  {
 
+        if (!super.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
+        }
         int id = super.getUserID(token);
         if (id == -1) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(FALTAAUTORIZACIONMSG);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(TOKENINVALIDOMSG);
         }
         try {
             Contratos contratoRechazado = servicioContratos.rechazarContrato(contratoId);

@@ -26,9 +26,12 @@ public class ControladorArrendatario extends ControladorUsuarioTemplate{
     @PostMapping(value = "/solicitar-arriendo/{idPropiedad}", consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> solicitarArriendo(@PathVariable("idPropiedad") int idPropiedad, @RequestBody ContratoDTO contratoDTO, @RequestHeader("Authorization") String token)
     {
+        if (!super.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
+        }
         int id = super.getUserID(token);
         if (id == -1) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(FALTAAUTORIZACIONMSG);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(TOKENINVALIDOMSG);
         }
          try {
             // se guarda
@@ -40,9 +43,12 @@ public class ControladorArrendatario extends ControladorUsuarioTemplate{
     @GetMapping("/mis-contratos")
     public @ResponseBody ResponseEntity<?> getContratos(@RequestHeader("Authorization") String token)
     {
+        if (!super.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
+        }
         int id = super.getUserID(token);
         if (id == -1) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(FALTAAUTORIZACIONMSG);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(TOKENINVALIDOMSG);
         }
         return ResponseEntity.ok(servicioContratos.getContratosArrendatario(id));
 
