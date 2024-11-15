@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Propiedades</title>
+</head>
+<body>
+    <h1>Propiedades del Arrendador</h1>
+    <p>ID del Arrendador: <span th:text="${id}"></span></p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Dirección</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="propiedad : ${propiedades}">
+                <td th:text="${propiedad.id}"></td>
+                <td th:text="${propiedad.nombrePropiedad}"></td>
+                <td th:text="${propiedad.departamento}"></td>
+                <td th:text="${propiedad.municipio}"></td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

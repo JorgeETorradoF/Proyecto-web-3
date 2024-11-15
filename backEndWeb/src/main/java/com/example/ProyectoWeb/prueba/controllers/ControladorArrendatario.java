@@ -30,7 +30,7 @@ public class ControladorArrendatario extends ControladorUsuarioTemplate{
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
         }
         int id = super.getUserID(token);
-        if (id == -1) {
+        if (id == -1 || !super.isValidToken(token)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(TOKENINVALIDOMSG);
         }
          try {
@@ -47,7 +47,7 @@ public class ControladorArrendatario extends ControladorUsuarioTemplate{
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
         }
         int id = super.getUserID(token);
-        if (id == -1) {
+        if (id == -1 || !super.isValidToken(token)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(TOKENINVALIDOMSG);
         }
         return ResponseEntity.ok(servicioContratos.getContratosArrendatario(id));

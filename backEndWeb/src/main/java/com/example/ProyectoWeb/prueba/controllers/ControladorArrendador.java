@@ -54,7 +54,7 @@ public class ControladorArrendador extends ControladorUsuarioTemplate{
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
                 }
                 int id = super.getUserID(token);
-                if (id == -1) {
+                if (id == -1 || !super.isValidToken(token)) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(TOKENINVALIDOMSG);
                 }
         logger.info("Iniciando registro de propiedad para el arrendador con ID: {}", id);
@@ -99,7 +99,7 @@ public class ControladorArrendador extends ControladorUsuarioTemplate{
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
         }
         int id = super.getUserID(token);
-        if (id == -1) {
+        if (id == -1 || !super.isValidToken(token)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
         try {
@@ -119,7 +119,7 @@ public class ControladorArrendador extends ControladorUsuarioTemplate{
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
         }
         int id = super.getUserID(token);
-        if (id == -1) {
+        if (id == -1 || !super.isValidToken(token)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
         try {
@@ -140,7 +140,7 @@ public class ControladorArrendador extends ControladorUsuarioTemplate{
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
                 }
                 int id = super.getUserID(token);
-                if (id == -1) {
+                if (id == -1 || !super.isValidToken(token)) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(TOKENINVALIDOMSG);
                 }
 
@@ -170,7 +170,7 @@ public class ControladorArrendador extends ControladorUsuarioTemplate{
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
         }
         int id = super.getUserID(token);
-        if (id == -1) {
+        if (id == -1 || !super.isValidToken(token)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(TOKENINVALIDOMSG);
         }
         try {
@@ -188,7 +188,7 @@ public class ControladorArrendador extends ControladorUsuarioTemplate{
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
         }
         int id = super.getUserID(token);
-        if (id == -1) {
+        if (id == -1 || !super.isValidToken(token)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(TOKENINVALIDOMSG);
         }
         try {
@@ -207,7 +207,7 @@ public class ControladorArrendador extends ControladorUsuarioTemplate{
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
         }
         int id = super.getUserID(token);
-        if (id == -1) {
+        if (id == -1 || !super.isValidToken(token)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(TOKENINVALIDOMSG);
         }
         try {
@@ -226,7 +226,7 @@ public class ControladorArrendador extends ControladorUsuarioTemplate{
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
         }
         int id = super.getUserID(token);
-        if (id == -1) {
+        if (id == -1 || !super.isValidToken(token)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(TOKENINVALIDOMSG);
         }
         try {

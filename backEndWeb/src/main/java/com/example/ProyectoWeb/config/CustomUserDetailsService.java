@@ -27,9 +27,9 @@ public class CustomUserDetailsService implements UserDetailsService {
         // Verificar en el repositorio de arrendadores
         Optional<Arrendadores> arrendador = repositorioArrendadores.findById(Integer.parseInt(username));
         if (arrendador.isPresent()) {
-            return User.withUsername(arrendador.get().getCorreo())
+            return User.withUsername(String.valueOf(arrendador.get().getId()))
                     .password(arrendador.get().getContraseña())
-                    .authorities("ARRRENDADOR") // Asignar roles según sea necesario
+                    .authorities("ARRENDADOR") // Asignar roles según sea necesario
                     .accountExpired(false)
                     .accountLocked(false)
                     .credentialsExpired(false)
@@ -42,7 +42,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (arrendatario.isPresent()) {
             return User.withUsername(arrendatario.get().getCorreo())
                     .password(arrendatario.get().getContraseña())
-                    .authorities("ARRRENDATARIO") // Asignar roles según sea necesario
+                    .authorities("ARRENDATARIO") // Asignar roles según sea necesario
                     .accountExpired(false)
                     .accountLocked(false)
                     .credentialsExpired(false)

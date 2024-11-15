@@ -23,7 +23,7 @@ public class ControladorCalificacion extends ControladorUsuarioTemplate{
 
         int userId = super.getUserID(token);
 
-        if (userId == -1) 
+        if (userId == -1 || !super.isValidToken(token)) 
         {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(TOKENINVALIDOMSG);
         }
@@ -46,7 +46,7 @@ public class ControladorCalificacion extends ControladorUsuarioTemplate{
 
         int userId = super.getUserID(token);
         
-        if (userId == -1) 
+        if (userId == -1 || !super.isValidToken(token)) 
         {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(TOKENINVALIDOMSG);
         }

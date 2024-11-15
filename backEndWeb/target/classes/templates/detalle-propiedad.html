@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalle de la Propiedad</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h2 {
+            color: #333;
+        }
+        form {
+            margin-top: 20px;
+        }
+        label {
+            display: inline-block;
+            width: 150px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        input[type="date"],
+        input[type="number"] {
+            width: 200px;
+            padding: 5px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Detalle de la Propiedad</h2>
+
+<!-- Aquí puedes mostrar los detalles de la propiedad utilizando Thymeleaf -->
+<p><strong>Nombre de la Propiedad:</strong> <span th:text="${nombrePropiedad}"></span></p>
+<p><strong>Departamento:</strong> <span th:text="${departamento}"></span></p>
+<p><strong>Municipio:</strong> <span th:text="${municipio}"></span></p>
+<p><strong>Descripción:</strong> <span th:text="${descripcion}"></span></p>
+<p><strong>Valor por Noche:</strong> $<span th:text="${valorNoche}"></span></p>
+<p><strong>Capacidad Máxima:</strong> <span th:text="${cantidadMaximaPersonas}"></span> personas</p>
+
+<!-- Formulario para solicitar el arriendo -->
+<form th:action="@{/arrendatario/{id}/propiedad/{propiedadId}/solicitar-arriendo(id=${id}, propiedadId=${propiedadId})}" method="post">
+    <label for="fechaInicio">Fecha de inicio:</label>
+    <input type="date" id="fechaInicio" name="fechaInicio" required>
+    <br>
+
+    <label for="fechaFin">Fecha final:</label>
+    <input type="date" id="fechaFin" name="fechaFin" required>
+    <br>
+
+    <label for="cantidadPersonas">Cantidad de personas:</label>
+    <input type="number" id="cantidadPersonas" name="cantidadPersonas" min="1" th:attr="max=${cantidadMaximaPersonas}" required>
+    <br>
+
+    <button type="submit">Solicitar Arriendo</button>
+</form>
+
+<!-- Mostrar mensaje de error si existe -->
+<div th:if="${error}" th:text="${error}" class="error"></div>
+
+</body>
+</html>

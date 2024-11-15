@@ -18,21 +18,32 @@ public class ControladorUsuarioTemplate {
     @Autowired
     private JWTTokenService jwtTokenService;
 
+    public boolean isValidToken(String authHeader)
+    {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authHeader != null && authHeader.startsWith("Bearer ")) 
+        {
+            String token = authHeader.substring(7);
+
+            if (jwtTokenService.getUserId(token).equals(authentication.getName()) && authentication.getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(jwtTokenService.getUserType(token))))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public int getUserID(String authHeader) {
        
-    if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            
         String token = authHeader.substring(7);
-            
         if (jwtTokenService.getFechaExpiracion(token).after(new Date())) {
             return Integer.parseInt(jwtTokenService.getUserId(token));
         }
-    }
-    return -1;
+        return -1;
     }
     public boolean isAuthenticated() {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    return authentication != null && authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null && authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken);
     }
     public boolean isArrendador(String authHeader)
     {
