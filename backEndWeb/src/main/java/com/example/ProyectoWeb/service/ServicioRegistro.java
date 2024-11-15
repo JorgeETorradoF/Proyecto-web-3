@@ -54,18 +54,18 @@ public class ServicioRegistro {
     // Registro de usuario
     public String registerUser(RegistroDTO registroDTO) throws CorreoRegistradoException, CamposInvalidosException {
         Usuario savedUser = null;
-
+        String role = "";
         // Si todos los campos están llenos y son válidos se prosigue con el registro
         if(nombresApellidosValidos(registroDTO.getNombre(),registroDTO.getApellido()) && 
            contraseñaValida(registroDTO.getContraseña()) && 
            emailValido(registroDTO.getCorreo())) {
-
             // Revisamos que el correo no haya sido ya registrado
             boolean existeCorreo = repositorioArrendadores.existsByCorreo(registroDTO.getCorreo()) || 
                                    repositorioArrendatarios.existsByCorreo(registroDTO.getCorreo());
 
             // Dependiendo de si hay correo registrado o no y qué tipo de usuario será, se realiza el registro
             if (registroDTO.isArrendador() && !existeCorreo) {
+                role = "ARRENDADOR";
                 Arrendadores arrendador = new Arrendadores();
                 arrendador.setNombre(registroDTO.getNombre());
                 arrendador.setApellido(registroDTO.getApellido());
@@ -75,6 +75,7 @@ public class ServicioRegistro {
                 arrendador.setCantiCalif(0);  // Asegurando que cantiCalif no sea null
                 savedUser = repositorioArrendadores.save(arrendador);
             } else if(!registroDTO.isArrendador() && !existeCorreo) {
+                role = "ARRENDATARIO";
                 Arrendatarios arrendatario = new Arrendatarios();
                 arrendatario.setNombre(registroDTO.getNombre());
                 arrendatario.setApellido(registroDTO.getApellido());
@@ -91,6 +92,6 @@ public class ServicioRegistro {
             // Mensaje de error: llene todos los campos
             throw new CamposInvalidosException("Por favor llene todos los campos e ingrese un correo válido");
         }
-        return jwtTokenService.generarToken(savedUser.getId());
+        return jwtTokenService.generarToken(savedUser.getId(), role);
     }
 }

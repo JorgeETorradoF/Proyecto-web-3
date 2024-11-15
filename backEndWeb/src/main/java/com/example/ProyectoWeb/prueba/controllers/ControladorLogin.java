@@ -31,13 +31,14 @@ public class ControladorLogin {
             RespuestaLoginDTO login = servicioLogin.loginUser(loginDTO);
             String ruta;
 
+            UrlYTokenDTO response;
             if (login.isArrendador()) {
                 ruta = "/arrendador/" + login.getId();
+                response = new UrlYTokenDTO(ruta, jwtTokenService.generarToken(login.getId(), "ARRENDADOR"));
             } else {
                 ruta = "/arrendatario/" + login.getId();
+                response = new UrlYTokenDTO(ruta, jwtTokenService.generarToken(login.getId(), "ARRENDATARIO"));
             }
-            // Envolver la URL en un objeto JSON
-            UrlYTokenDTO response = new UrlYTokenDTO(ruta, jwtTokenService.generarToken(login.getId()));
             return ResponseEntity.ok(response); // Retornar el objeto JSON
 
         } catch (CorreoNoExistenteException e) {

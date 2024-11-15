@@ -50,7 +50,7 @@ public class ControladorArrendador extends ControladorUsuarioTemplate{
             @RequestPart("imagen") MultipartFile imagen,
             @RequestHeader("Authorization") String token)  {
 
-                if (!super.isAuthenticated()) {
+                if (!super.isAuthenticated() || !super.isArrendador(token)) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
                 }
                 int id = super.getUserID(token);
@@ -95,7 +95,7 @@ public class ControladorArrendador extends ControladorUsuarioTemplate{
     @ResponseBody
     public ResponseEntity<?> obtenerImagen(@PathVariable("nombreImagen") String nombreImagen,@RequestHeader("Authorization") String token)  {
 
-        if (!super.isAuthenticated()) {
+        if (!super.isAuthenticated() || !super.isArrendador(token)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
         }
         int id = super.getUserID(token);
@@ -115,7 +115,7 @@ public class ControladorArrendador extends ControladorUsuarioTemplate{
     @GetMapping("/propiedades")
     public @ResponseBody ResponseEntity<?> getAllProperties(@RequestHeader("Authorization") String token)  {
 
-        if (!super.isAuthenticated()) {
+        if (!super.isAuthenticated() || !super.isArrendador(token)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
         }
         int id = super.getUserID(token);
@@ -136,7 +136,7 @@ public class ControladorArrendador extends ControladorUsuarioTemplate{
             @RequestBody PropiedadDTO propiedadDTO,
             @RequestHeader("Authorization") String token)  {
 
-                if (!super.isAuthenticated()) {
+                if (!super.isAuthenticated() || !super.isArrendador(token)) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
                 }
                 int id = super.getUserID(token);
@@ -166,7 +166,7 @@ public class ControladorArrendador extends ControladorUsuarioTemplate{
     @GetMapping("/propiedad/{propiedadId}")
     public ResponseEntity<?> mostrarDetallePropiedad(@PathVariable("propiedadId") int propiedadId, @RequestHeader("Authorization") String token)  {
 
-        if (!super.isAuthenticated()) {
+        if (!super.isAuthenticated() || !super.isArrendador(token)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
         }
         int id = super.getUserID(token);
@@ -184,7 +184,7 @@ public class ControladorArrendador extends ControladorUsuarioTemplate{
     @GetMapping("/mis-contratos")
     public @ResponseBody ResponseEntity<?> getContratos(@RequestHeader("Authorization") String token)  {
 
-        if (!super.isAuthenticated()) {
+        if (!super.isAuthenticated() || !super.isArrendador(token)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
         }
         int id = super.getUserID(token);
@@ -203,7 +203,7 @@ public class ControladorArrendador extends ControladorUsuarioTemplate{
     @PutMapping("/aceptar-contrato/{contratoId}")
     public ResponseEntity<?> aceptarContrato(@PathVariable("contratoId") int contratoId,@RequestHeader("Authorization") String token)  {
 
-        if (!super.isAuthenticated()) {
+        if (!super.isAuthenticated() || !super.isArrendador(token)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
         }
         int id = super.getUserID(token);
@@ -222,7 +222,7 @@ public class ControladorArrendador extends ControladorUsuarioTemplate{
     @PutMapping("/rechazar-contrato/{contratoId}")
     public ResponseEntity<?> rechazarContrato(@PathVariable("contratoId") int contratoId,@RequestHeader("Authorization") String token)  {
 
-        if (!super.isAuthenticated()) {
+        if (!super.isAuthenticated() || !super.isArrendador(token)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
         }
         int id = super.getUserID(token);

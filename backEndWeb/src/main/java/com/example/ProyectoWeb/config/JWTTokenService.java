@@ -27,32 +27,32 @@ public class JWTTokenService {
     private long jwtExpiration = 99999999;
     private Key jwtKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);; // You need to set this key appropriately
 
-    public String generarToken(int id) {
+    // Se genera token con tipo de usuario (Arrendador o Arrendatario)
+    public String generarToken(int id, String userType) {
 
-        // byte[] secretBytes = secret.getBytes();
-        // Key jwtKey = new SecretKeySpec(secretBytes, SignatureAlgorithm.HS512.getJcaName());
         ObjectMapper objectMapper = new ObjectMapper();
         String userID = "";
         try {
-            userID = objectMapper.writeValueAsString(id);
+            userID = objectMapper.writeValueAsString(id);  // Convertir el ID del usuario a string
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtExpiration);
+        Date expiryDate = new Date(now.getTime() + jwtExpiration);  // Establecer fecha de expiración
 
-        Collection<? extends GrantedAuthority> authorities = new ArrayList<>();
+        Collection<? extends GrantedAuthority> authorities = new ArrayList<>();  // Autoridades del usuario (puedes agregar roles aquí)
 
         return Jwts.builder()
-                .setSubject(userID)
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
+                .setSubject(userID)  // Establecer el sujeto (ID del usuario)
+                .setIssuedAt(now)  // Fecha de emisión
+                .setExpiration(expiryDate)  // Fecha de expiración
+                .claim("userType", userType)  // Agregar tipo de usuario (Arrendador o Arrendatario)
                 .claim("authorities", authorities.stream()
                         .map(GrantedAuthority::getAuthority)
-                        .collect(Collectors.toList()))
-                .signWith(jwtKey, SignatureAlgorithm.HS512) // Use your appropriate signing algorithm
-                .compact();
+                        .collect(Collectors.toList()))  // Agregar las autoridades (roles)
+                .signWith(jwtKey, SignatureAlgorithm.HS512)  // Firmar el JWT con la clave secreta
+                .compact();  // Generar el token
     }
 
     public String getUserId(String jwtToken){
@@ -61,6 +61,10 @@ public class JWTTokenService {
     }
     public Date getFechaExpiracion(String jwtToken){
         return decodificarToken(jwtToken).getExpiration();
+    }
+    // Se obtiene el tipo de usuario del token
+    public String getUserType(String jwtToken) {
+        return decodificarToken(jwtToken).get("userType", String.class);  // Obtener el valor de 'userType' del token
     }
 
     public Claims decodificarToken(String jwtToken) {

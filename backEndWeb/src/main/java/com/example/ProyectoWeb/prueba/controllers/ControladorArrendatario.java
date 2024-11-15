@@ -26,7 +26,7 @@ public class ControladorArrendatario extends ControladorUsuarioTemplate{
     @PostMapping(value = "/solicitar-arriendo/{idPropiedad}", consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> solicitarArriendo(@PathVariable("idPropiedad") int idPropiedad, @RequestBody ContratoDTO contratoDTO, @RequestHeader("Authorization") String token)
     {
-        if (!super.isAuthenticated()) {
+        if (!super.isAuthenticated() || !super.isArrendatario(token)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
         }
         int id = super.getUserID(token);
@@ -43,7 +43,7 @@ public class ControladorArrendatario extends ControladorUsuarioTemplate{
     @GetMapping("/mis-contratos")
     public @ResponseBody ResponseEntity<?> getContratos(@RequestHeader("Authorization") String token)
     {
-        if (!super.isAuthenticated()) {
+        if (!super.isAuthenticated() || !super.isArrendatario(token)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(NOAUTENTICADOMSG);
         }
         int id = super.getUserID(token);
