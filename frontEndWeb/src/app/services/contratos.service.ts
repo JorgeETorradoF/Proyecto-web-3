@@ -1,22 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
-interface Contract {
-  fechaInicio: string;
-  fechaFinal: string;
-  id: number;
-  idPropiedad: number;
-  idArrendatario: number;
-  estado: number;
-  precio: number;
-}
-interface Solicitud {
-  fechaInicio: string;
-  fechaFinal: string;
-  cantidadPersonas: number;
-  enConflicto: boolean;
-}
+import { Contract } from '../interfaces/contrato.interface';
+import { Solicitud } from '../interfaces/solicitud.interface';
 
 @Injectable({
   providedIn: 'root',

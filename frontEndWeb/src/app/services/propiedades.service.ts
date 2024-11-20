@@ -1,22 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
-interface Propiedad {
-  id: number;
-  nombrePropiedad: string;
-  descripcion: string;
-  valorNoche: number;
-  departamento: string;
-  municipio: string;
-  tipoIngreso: string;
-  cantidadHabitaciones: number;
-  cantidadBanos: number;
-  permiteMascotas: boolean;
-  tienePiscina: boolean;
-  tieneAsador: boolean;
-  urlImagen: string;
-}
+import { Propiedad } from '../interfaces/propiedad.interface';
 
 @Injectable({
   providedIn: 'root',
