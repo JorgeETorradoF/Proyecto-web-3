@@ -1,16 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContratosService } from '../../services/contratos.service'; // Importa el servicio
+import { Contract } from '../../interfaces/contrato.interface';
 
-interface Contract {
-  fechaInicio: string;
-  fechaFinal: string;
-  id: number;
-  idPropiedad: number;
-  idArrendatario: number;
-  estado: number;
-  precio: number;
-}
 
 @Component({
   selector: 'app-contratos-arrendador',

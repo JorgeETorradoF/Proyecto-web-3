@@ -12,5 +12,6 @@ export interface Propiedad {
     tienePiscina: boolean;
     tieneAsador: boolean;
     urlImagen: string;
+    idArrendador?: number;
   }
   

@@ -2,17 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UsuarioService } from '../../services/usuario.service';
 import { CalificacionService } from '../../services/calificacion.service';
-
-interface Arrendador {
-  id: number;
-  nombre: string;
-  apellido: string;
-  correo: string;
-  promedio: number;
-  cantiCalif: number;
-  calificacion?: number; // Campo para la calificación que el usuario ingresará
-  comentario?: string;   // Campo para el comentario que el usuario ingresará
-}
+import { Arrendador } from '../../interfaces/arrendador.interface';
 
 @Component({
   selector: 'app-calificar-arrendador',

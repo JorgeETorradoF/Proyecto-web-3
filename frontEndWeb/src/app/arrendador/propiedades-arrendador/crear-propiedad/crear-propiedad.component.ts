@@ -1,22 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PropiedadesService } from '../../../services/propiedades.service';
 import { ActivatedRoute, Router } from '@angular/router';
-
-interface Propiedad {
-  id: number;
-  nombrePropiedad: string;
-  descripcion: string;
-  valorNoche: number;
-  departamento: string;
-  municipio: string;
-  tipoIngreso: string;
-  cantidadHabitaciones: number;
-  cantidadBanos: number;
-  permiteMascotas: boolean;
-  tienePiscina: boolean;
-  tieneAsador: boolean;
-  urlImagen: string;
-}
+import { Propiedad } from '../../../interfaces/propiedad.interface';
 
 interface ImagenPreview {
   file: File;

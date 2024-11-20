@@ -4,17 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UsuarioService } from '../../services/usuario.service';
 import { CalificacionService } from '../../services/calificacion.service';
-
-interface Arrendatario {
-  id: number;
-  nombre: string;
-  apellido: string;
-  correo: string;
-  promedio: number;
-  cantiCalif: number;
-  calificacion?: number; // Campo para la calificación que el usuario ingresará
-  comentario?: string;   // Campo para el comentario que el usuario ingresará
-}
+import { Arrendatario } from '../../interfaces/arrendatario.interface';
 
 @Component({
   selector: 'app-calificar-arrendatario',

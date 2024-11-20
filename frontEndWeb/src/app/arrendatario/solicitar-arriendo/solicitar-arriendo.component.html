@@ -14,7 +14,7 @@
 
   <div *ngIf="propiedad" class="propiedad-detalle">
     <div class="propiedad-imagen">
-      <img [src]="propiedad.urlImagen ?? '../../../assets/images/finca.webp'" [alt]="propiedad.nombrePropiedad" />
+      <img [src]="propiedad.urlImagen" [alt]="propiedad.nombrePropiedad" />
     </div>
     <div class="propiedad-info">
       <p><strong>Ubicación:</strong> {{ propiedad.municipio }}, {{ propiedad.departamento }}</p>

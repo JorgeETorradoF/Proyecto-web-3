@@ -1,16 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PropiedadesService } from '../../services/propiedades.service';
 import { ActivatedRoute, Router } from '@angular/router';
-
-interface Propiedad {
-  id: number;
-  nombrePropiedad: string;
-  descripcion: string;
-  valorNoche: number;
-  departamento: string;
-  municipio: string;
-  urlImagen: string; // Para la imagen
-}
+import { Propiedad } from '../../interfaces/propiedad.interface';
 
 @Component({
   selector: 'app-propiedades-arrendador',

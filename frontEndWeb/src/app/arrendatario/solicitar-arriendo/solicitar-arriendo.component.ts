@@ -4,23 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PropiedadesService } from '../../services/propiedades.service';
 import { ContratosService } from '../../services/contratos.service';
-
-interface Propiedad {
-  id: number;
-  nombrePropiedad: string;
-  descripcion: string;
-  valorNoche: number;
-  departamento: string;
-  municipio: string;
-  tipoIngreso: string;
-  cantidadHabitaciones: number;
-  cantidadBanos: number;
-  permiteMascotas: boolean;
-  tienePiscina: boolean;
-  tieneAsador: boolean;
-  urlImagen: string | null;
-  idArrendador?: number;
-}
+import { Propiedad } from '../../interfaces/propiedad.interface';
 
 interface Solicitud {
   fechaInicio: string;
