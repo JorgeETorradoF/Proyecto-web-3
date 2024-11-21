@@ -1,3 +1,11 @@
+# Integrantes
+Jorge Eduardo Torrado Forero
+Juan Andrés Vásquez Velasco
+Erick Santiago Camargo
+Zenén Contreras Robayo
+Juan Diego Cifuentes
+
+
 # Cómo ejecutar
 
 Se debe tener Docker y Kubernetes (k8s) instalados.
