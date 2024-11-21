@@ -1,9 +1,9 @@
 # Integrantes
-Jorge Eduardo Torrado Forero
-Juan Andrés Vásquez Velasco
-Erick Santiago Camargo
-Zenén Contreras Robayo
-Juan Diego Cifuentes
+- Jorge Eduardo Torrado Forero
+- Juan Andrés Vásquez Velasco
+- Erick Santiago Camargo
+- Zenén Contreras Robayo
+- Juan Diego Cifuentes
 
 
 # Cómo ejecutar
