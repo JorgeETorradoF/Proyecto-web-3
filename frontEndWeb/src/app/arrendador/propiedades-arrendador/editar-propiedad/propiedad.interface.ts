@@ -1,5 +1,5 @@
-// propiedad.interface.ts
 export interface Propiedad {
+  id: number;
   nombrePropiedad: string;
   descripcion: string;
   valorNoche: number;
@@ -12,4 +12,5 @@ export interface Propiedad {
   tienePiscina: boolean;
   tieneAsador: boolean;
   urlImagen: string;
+  idArrendador?: number;
 }

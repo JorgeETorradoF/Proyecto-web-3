@@ -7,4 +7,3 @@ export interface Contract {
     estado: number;
     precio: number;
   }
-  

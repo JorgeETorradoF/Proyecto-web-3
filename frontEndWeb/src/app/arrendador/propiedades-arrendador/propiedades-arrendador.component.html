@@ -13,8 +13,8 @@
 
     <div class="properties-grid">
       <div *ngFor="let propiedad of propiedades" class="property-card">
-        <img [src]="getImagenUrl(propiedad.urlImagen)" alt="Imagen de la propiedad" class="property-image" />
-        
+        <img [src]="imagenUrl[propiedad.id]" alt="Imagen de la propiedad" />
+
         <div class="property-info">
           <h3>{{ propiedad.nombrePropiedad }}</h3>
           <p><strong>Departamento:</strong> {{ propiedad.departamento }}</p>

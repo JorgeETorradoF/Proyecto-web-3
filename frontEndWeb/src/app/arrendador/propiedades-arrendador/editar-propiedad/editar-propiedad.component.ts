@@ -1,7 +1,10 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PropiedadesService } from '../../../services/propiedades.service';
-import { Propiedad } from './propiedad.interface'; // Asegúrate de que la ruta sea correcta
+import { Propiedad } from './propiedad.interface';
+import { Observable } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-editar-propiedad',
@@ -10,6 +13,7 @@ import { Propiedad } from './propiedad.interface'; // Asegúrate de que la ruta 
 })
 export class EditarPropiedadComponent implements OnInit {
   propiedad: Propiedad = {
+    id: 0,
     nombrePropiedad: '',
     descripcion: '',
     valorNoche: 0,
@@ -24,20 +28,24 @@ export class EditarPropiedadComponent implements OnInit {
     urlImagen: '',
   };
 
-  idArrendador!: number;
+
   idPropiedad!: number;
-  nuevaImagen: string | ArrayBuffer | null = null; // Para la vista previa de la nueva imagen
+  nuevaImagen: string | ArrayBuffer | null = null;
   ip: string = 'localhost';
+  imagenUrl: SafeUrl = 'assets/default-image.jpg';
 
-  editarCampos: { [key: string]: boolean } = {}; // Control de edición por campo
-
-  @ViewChild('fileInput') fileInput!: ElementRef; // Referencia al input de archivo
+  @ViewChild('fileInput') fileInput!: ElementRef;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private propiedadesService: PropiedadesService
+    private propiedadesService: PropiedadesService,
+    private sanitizer: DomSanitizer,
+    private http: HttpClient
   ) {}
+
+  editarCampos: { [key: string]: boolean } = {};
+
 
   ngOnInit(): void {
     const token = localStorage.getItem('authToken');
@@ -47,23 +55,27 @@ export class EditarPropiedadComponent implements OnInit {
       return;
     }
 
-    this.idArrendador = +this.route.snapshot.paramMap.get('idArrendador')!;
     this.idPropiedad = +this.route.snapshot.paramMap.get('idPropiedad')!;
 
     this.cargarPropiedad();
   }
 
   cargarPropiedad(): void {
-    this.propiedadesService.getPropiedad(this.idArrendador, this.idPropiedad).subscribe(
+    this.propiedadesService.obtenerPropiedad(this.idPropiedad).subscribe(
       (data) => {
         console.log('Propiedad recibida:', data);
         this.propiedad = data;
+
+        // Cargar la imagen asociada
+        if (this.propiedad.urlImagen) {
+          this.cargarImagen(this.propiedad.urlImagen);
+        }
       },
       (error) => {
         console.error('Error al cargar la propiedad:', error);
         if (error.status === 401) {
           console.warn('Token no válido o expirado. Redirigiendo a inicio de sesión.');
-          localStorage.removeItem('token');
+          localStorage.removeItem('authToken');
           this.router.navigate(['/login']);
         } else {
           alert('No se pudo cargar la propiedad. Intente más tarde.');
@@ -71,6 +83,47 @@ export class EditarPropiedadComponent implements OnInit {
       }
     );
   }
+
+  cargarImagen(nombreImagen: string): void {
+    if (!nombreImagen) {
+      console.warn(`La propiedad no tiene una imagen asociada.`);
+      this.imagenUrl = 'assets/default-image.jpg';
+      return;
+    }
+
+    this.getImagen(nombreImagen).subscribe(
+      (imagen) => {
+        const url = URL.createObjectURL(imagen);
+        this.imagenUrl = this.sanitizer.bypassSecurityTrustUrl(url);
+      },
+      (error) => {
+        console.error('Error al cargar la imagen:', error);
+        this.imagenUrl = 'assets/default-image.jpg';
+      }
+    );
+  }
+
+  getImagen(nombreImagen: string): Observable<Blob> {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      console.error('Token no encontrado en localStorage');
+      throw new Error('Token no encontrado');
+    }
+
+    if (nombreImagen.startsWith('/api/arrendador/imagenes/')) {
+      nombreImagen = nombreImagen.replace('/api/arrendador/imagenes/', '');
+    }
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    return this.http.get(`http://localhost/api/arrendador/imagenes/${nombreImagen}`, {
+      headers,
+      responseType: 'blob',
+    });
+  }
+
 
   toggleEditar(campo: string): void {
     this.editarCampos[campo] = !this.editarCampos[campo];
@@ -96,22 +149,20 @@ export class EditarPropiedadComponent implements OnInit {
       if (this.nuevaImagen) {
         this.propiedad.urlImagen = this.nuevaImagen as string;
       }
-      this.propiedadesService
-        .editarPropiedad(this.idArrendador, this.idPropiedad, this.propiedad)
-        .subscribe(
-          (response) => {
-            console.log('Propiedad actualizada:', response);
-            this.router.navigate([`/arrendador/${this.idArrendador}/propiedades`]);
-          },
-          (error) => {
-            console.error('Error al actualizar la propiedad:', error);
-            if (error.status === 401) {
-              console.warn('Token no válido o expirado. Redirigiendo a inicio de sesión.');
-              localStorage.removeItem('token');
-              this.router.navigate(['/login']);
-            }
+      this.propiedadesService.editarPropiedad(this.idPropiedad, this.propiedad).subscribe(
+        (response) => {
+          console.log('Propiedad actualizada:', response);
+          this.router.navigate(['/arrendador/propiedades']);
+        },
+        (error) => {
+          console.error('Error al actualizar la propiedad:', error);
+          if (error.status === 401) {
+            console.warn('Token no válido o expirado. Redirigiendo a inicio de sesión.');
+            localStorage.removeItem('authToken');
+            this.router.navigate(['/login']);
           }
-        );
+        }
+      );
     } else {
       console.error('Error: Todos los campos requeridos deben estar completos.');
     }
@@ -119,6 +170,7 @@ export class EditarPropiedadComponent implements OnInit {
 
   validarPropiedad(): boolean {
     return (
+      this.propiedad.id > 0 &&
       this.propiedad.nombrePropiedad.trim() !== '' &&
       this.propiedad.descripcion.trim() !== '' &&
       this.propiedad.departamento.trim() !== '' &&
@@ -130,11 +182,10 @@ export class EditarPropiedadComponent implements OnInit {
     );
   }
 
+
   cancelar(): void {
-    this.router.navigate([`/arrendador/${this.idArrendador}/propiedades`]);
+    this.router.navigate(['/arrendador/propiedades']);
   }
 
-  getImagenUrl(nombreImagen: string): string {
-    return `http://${this.ip}${nombreImagen}`;
-  }
+
 }

@@ -7,9 +7,11 @@ import { Propiedad } from '../interfaces/propiedad.interface';
   providedIn: 'root',
 })
 export class PropiedadesService {
-  private baseUrl: string = 'http://localhost/api'; // Inicialmente vacío
+  private baseUrl: string = 'http://localhost/api'; // URL base del backend
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.http = http;
+  }
 
   // Método para configurar la IP del servidor backend
   setIp(ip: string) {
@@ -23,44 +25,56 @@ export class PropiedadesService {
       Authorization: `Bearer ${token}`, // Agregar el token al encabezado Authorization
     });
   }
+  getImagen(nombreImagen: string, headers: HttpHeaders): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/arrendador/imagenes/${nombreImagen}`, {
+      headers,
+      responseType: 'blob',
+    });
+  }
+  obtenerImagen(nombreImagen: string): Observable<Blob> {
+    const headers = this.getHeaders();
+    return this.http.get(`${this.baseUrl}/arrendador/imagenes/${nombreImagen}`, {
+      headers,
+      responseType: 'blob',
+    });
+  }
 
-  // Obtener todas las propiedades (sin autenticación, ejemplo público)
+  // Obtener todas las propiedades públicas
   getAllPropiedades(): Observable<Propiedad[]> {
     return this.http.get<Propiedad[]>(`${this.baseUrl}/get-propiedades`);
   }
 
-  // Obtener propiedades de un arrendador
-  getPropiedadesArrendador(idArrendador: number): Observable<Propiedad[]> {
-    return this.http.get<Propiedad[]>(
-      `${this.baseUrl}/arrendador/${idArrendador}/propiedades`,
-      { headers: this.getHeaders() }
-    );
+  // Obtener propiedades del arrendador autenticado
+  getPropiedadesArrendador(): Observable<Propiedad[]> {
+    return this.http.get<Propiedad[]>(`${this.baseUrl}/arrendador/propiedades`, {
+      headers: this.getHeaders(),
+    });
   }
 
   // Crear nueva propiedad sin imagen
-  crearPropiedad(idArrendador: number, propiedad: Propiedad): Observable<Propiedad> {
+  crearPropiedad(propiedad: Propiedad): Observable<Propiedad> {
     return this.http.post<Propiedad>(
-      `${this.baseUrl}/arrendador/${idArrendador}/registrar-propiedad`,
+      `${this.baseUrl}/arrendador/registrar-propiedad`,
       propiedad,
       { headers: this.getHeaders() }
     );
   }
 
   // Crear propiedad con imagen
-  crearPropiedadConImagen(idArrendador: number, formData: FormData): Observable<any> {
-    const url = `${this.baseUrl}/arrendador/${idArrendador}/registrar-propiedad`;
+  crearPropiedadConImagen(formData: FormData): Observable<any> {
+    const url = `${this.baseUrl}/arrendador/registrar-propiedad`;
     return this.http.post(url, formData, { headers: this.getHeaders() });
   }
 
   // Obtener detalles de una propiedad específica
-  getPropiedad(idArrendador: number, idPropiedad: number): Observable<Propiedad> {
-    const url = `${this.baseUrl}/arrendador/${idArrendador}/propiedad/${idPropiedad}`;
+  getPropiedad(idPropiedad: number): Observable<Propiedad> {
+    const url = `${this.baseUrl}/arrendador/propiedad/${idPropiedad}`;
     return this.http.get<Propiedad>(url, { headers: this.getHeaders() });
   }
 
   // Editar propiedad
-  editarPropiedad(idArrendador: number, idPropiedad: number, propiedad: any): Observable<any> {
-    const url = `${this.baseUrl}/arrendador/${idArrendador}/modificar-propiedad/${idPropiedad}`;
+  editarPropiedad(idPropiedad: number, propiedad: any): Observable<any> {
+    const url = `${this.baseUrl}/arrendador/modificar-propiedad/${idPropiedad}`;
     return this.http.put(url, propiedad, { headers: this.getHeaders() });
   }
 
@@ -70,10 +84,9 @@ export class PropiedadesService {
       headers: this.getHeaders(),
     });
   }
-
-  // Propiedad.service.ts
-  obtenerPropiedad(idArrendador: number, idPropiedad: number): Observable<any> {
-    const url = `${this.baseUrl}/arrendador/${idArrendador}/propiedad/${idPropiedad}`;
+  obtenerPropiedad(idPropiedad: number): Observable<any> {
+    const url = `${this.baseUrl}/arrendador/propiedad/${idPropiedad}`;
     return this.http.get(url, { headers: this.getHeaders() });
   }
+
 }

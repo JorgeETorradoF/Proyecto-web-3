@@ -1,134 +1,146 @@
-.background{
-    background-image: linear-gradient(rgba(76, 175, 79, 0.212), rgba(76, 175, 79, 0.027)), url('../../../assets/images/finca.webp');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    min-height: 100vh;
-  }
+.background {
+  background-image: linear-gradient(rgba(76, 175, 79, 0.212), rgba(76, 175, 79, 0.027)), url('../../../assets/images/finca.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
 
 .properties-section {
-    padding: 4rem 2rem;
-  }
+  padding: 4rem 2rem;
+}
 
-  h2 {
-    color: #709e4c;
-    font-size: 2.5rem;
-    margin-bottom: 2rem;
-    text-align: center;
-  }
+h2 {
+  color: #709e4c;
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
 
-  .add-btn {
-    background-color: #90be6d;
-    color: white;
-    padding: 1rem 2rem;
-    border: none;
-    border-radius: 5px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-bottom: 2rem;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-  }
+.add-btn {
+  background-color: #90be6d;
+  color: white;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 2rem;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
 
-  .add-btn:hover {
-    background-color: #7aa55c;
-  }
+.add-btn:hover {
+  background-color: #7aa55c;
+}
 
-  .no-properties {
-    text-align: center;
-    color: #666;
-    font-size: 1.2rem;
-    margin: 2rem 0;
-  }
+.no-properties {
+  text-align: center;
+  color: #666;
+  font-size: 1.2rem;
+  margin: 2rem 0;
+}
 
-  .properties-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
+.properties-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
 
-  .property-card {
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    transition: transform 0.3s ease;
-  }
+.property-card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
 
-  .property-card:hover {
-    transform: translateY(-5px);
-  }
+.property-card img {
+  width: 100%;
+  height: 250px; /* Ajustar la altura de la imagen */
+  object-fit: cover;
+  border-bottom: 2px solid #eee;
+  display: block;
+}
 
-  .property-image {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-  }
+.property-card:hover {
+  transform: translateY(-5px);
+}
 
-  .property-info {
-    padding: 1.5rem;
-  }
+/* Ajuste para las imágenes cuadradas */
+.property-card img {
+  width: 100%; /* Asegura que la imagen ocupa todo el ancho */
+  height: auto; /* Ajusta la altura proporcionalmente */
+  aspect-ratio: 1 / 1; /* Relación de aspecto cuadrada */
+  object-fit: cover; /* Cubre todo el área manteniendo el foco */
+  border-bottom: 2px solid #eee; /* Añade un borde para separación */
+  display: block; /* Asegura que la imagen se renderiza como un bloque */
+}
 
-  .property-info h3 {
-    color: #333;
-    margin-bottom: 1rem;
-    font-size: 1.5rem;
-  }
+.property-info {
+  padding: 1.5rem;
+}
 
-  .property-info p {
-    color: #666;
-    margin-bottom: 0.5rem;
-  }
+.property-info h3 {
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
 
-  .button-group {
-    padding: 1.5rem;
-    display: flex;
-    gap: 1rem;
-  }
+.property-info p {
+  color: #666;
+  margin-bottom: 0.5rem;
+}
 
-  .btn {
-    flex: 1;
-    padding: 0.8rem;
-    border: none;
-    border-radius: 5px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
+.button-group {
+  padding: 1.5rem;
+  display: flex;
+  gap: 1rem;
+}
 
-  .edit-btn {
-    background-color: #709e4c;
-    color: white;
-  }
+.btn {
+  flex: 1;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
 
-  .edit-btn:hover {
-    background-color: rgb(102, 145, 69);
-  }
+.edit-btn {
+  background-color: #709e4c;
+  color: white;
+}
 
-  .view-btn {
-    background-color: #118ab2;
-    color: white;
-  }
+.edit-btn:hover {
+  background-color: rgb(102, 145, 69);
+}
 
-  .view-btn:hover {
-    background-color: #0f7a9d;
-  }
+.view-btn {
+  background-color: #118ab2;
+  color: white;
+}
 
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+.view-btn:hover {
+  background-color: #0f7a9d;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  
-  .properties-section{
-    animation: fadeIn 0.5s ease-out;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
+}
+
+.properties-section {
+  animation: fadeIn 0.5s ease-out;
+}

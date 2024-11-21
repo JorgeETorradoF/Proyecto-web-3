@@ -14,17 +14,14 @@ export class PrincipalArrendatarioComponent implements OnInit {
   filteredPropiedades: Propiedad[] = [];
   searchTerm: string = '';
   suggestions: string[] = [];
-  idArrendatario!: number; // Se obtiene de la URL
-  ip: string = 'localhost'; // IP del servidor backend
 
   constructor(
     private propiedadesService: PropiedadesService,
-    private route: ActivatedRoute,
     private router: Router
   ) {}
 
-  ngOnInit() {
-    // Verificar si el token JWT está presente
+  ngOnInit(): void {
+    // Validar si el token JWT está presente
     const token = localStorage.getItem('authToken');
     if (!token) {
       console.warn('Token no encontrado. Redirigiendo a inicio de sesión.');
@@ -32,53 +29,63 @@ export class PrincipalArrendatarioComponent implements OnInit {
       return;
     }
 
-    // Obtiene el id del arrendatario desde la ruta (URL)
-    this.idArrendatario = +this.route.snapshot.paramMap.get('idArrendatario')!;
-    this.obtenerPropiedades(); // Llamamos para obtener las propiedades
+    // Obtener propiedades disponibles para arrendatarios
+    this.obtenerPropiedades();
   }
 
-  getImagenUrl(nombreImagen: string): string {
-    return `http://${this.ip}${nombreImagen}`;
+  getImagenUrl(urlImagen: string | null): string {
+    return urlImagen || '../../../assets/images/finca.webp';
   }
 
   // Método para obtener todas las propiedades disponibles
-  obtenerPropiedades() {
+  obtenerPropiedades(): void {
     this.propiedadesService.getAllPropiedades().subscribe(
       (data) => {
         console.log('Propiedades obtenidas:', data);
         this.propiedades = data;
-        this.filteredPropiedades = data; // Inicializamos las propiedades filtradas
+        this.filteredPropiedades = data; // Inicializar propiedades filtradas
       },
       (error) => {
         console.error('Error al obtener propiedades:', error);
+        if (error.status === 401) {
+          console.warn('Token no válido o expirado. Redirigiendo a inicio de sesión.');
+          localStorage.removeItem('authToken');
+          this.router.navigate(['/login']);
+        }
       }
     );
   }
 
-  // Métodos de búsqueda
-  search() {
+  // Método de búsqueda
+  search(): void {
     const searchTermLower = this.searchTerm.toLowerCase();
     this.filteredPropiedades = this.propiedades.filter((propiedad) =>
       propiedad.municipio.toLowerCase().includes(searchTermLower)
     );
   }
 
-  updateSuggestions() {
+  updateSuggestions(): void {
     const searchTermLower = this.searchTerm.toLowerCase();
     this.suggestions = this.propiedades
       .map((propiedad) => propiedad.municipio)
       .filter((ubicacion) =>
         ubicacion.toLowerCase().includes(searchTermLower)
       )
-      .slice(0, 2);
+      .slice(0, 3); // Mostrar máximo 3 sugerencias
   }
 
-  selectSuggestion(suggestion: string) {
+  selectSuggestion(suggestion: string): void {
     this.searchTerm = suggestion;
     this.search();
-    this.suggestions = []; // Limpia las sugerencias después de seleccionar
+    this.suggestions = []; // Limpiar sugerencias después de seleccionar
+  }
+
+  // Método para redirigir a los detalles de la propiedad
+  verDetallePropiedad(idPropiedad: number): void {
+    this.router.navigate([`/detalle-propiedad/${idPropiedad}`]);
   }
 }
+
 
 // import { Component, OnInit } from '@angular/core';
 // import { Router } from '@angular/router';

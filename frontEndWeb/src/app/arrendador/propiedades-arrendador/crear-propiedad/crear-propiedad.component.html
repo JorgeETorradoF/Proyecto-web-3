@@ -3,66 +3,66 @@
 
   <div class="container">
     <h2>Agregar Propiedad</h2>
-  
+
     <form (ngSubmit)="onSubmit()">
       <div>
         <label for="nombrePropiedad">Nombre de la propiedad:</label>
         <input type="text" id="nombrePropiedad" [(ngModel)]="propiedad.nombrePropiedad" name="nombrePropiedad" required>
       </div>
-  
+
       <div>
         <label for="descripcion">Descripción:</label>
         <textarea id="descripcion" [(ngModel)]="propiedad.descripcion" name="descripcion" required></textarea>
       </div>
-  
+
       <div>
         <label for="valorNoche">Valor por noche:</label>
         <input type="number" id="valorNoche" [(ngModel)]="propiedad.valorNoche" name="valorNoche" required>
       </div>
-  
+
       <div>
         <label for="departamento">Departamento:</label>
         <input type="text" id="departamento" [(ngModel)]="propiedad.departamento" name="departamento" required>
       </div>
-  
+
       <div>
         <label for="municipio">Municipio:</label>
         <input type="text" id="municipio" [(ngModel)]="propiedad.municipio" name="municipio" required>
       </div>
-  
+
       <div>
         <label for="tipoIngreso">Tipo de ingreso:</label>
         <input type="text" id="tipoIngreso" [(ngModel)]="propiedad.tipoIngreso" name="tipoIngreso" required>
       </div>
-  
+
       <div>
         <label for="cantidadHabitaciones">Cantidad de habitaciones:</label>
         <input type="number" id="cantidadHabitaciones" [(ngModel)]="propiedad.cantidadHabitaciones" name="cantidadHabitaciones" required>
       </div>
-  
+
       <div>
         <label for="cantidadBanos">Cantidad de baños:</label>
         <input type="number" id="cantidadBanos" [(ngModel)]="propiedad.cantidadBanos" name="cantidadBanos" required>
       </div>
-  
+
       <div>
         <label for="permiteMascotas">¿Permite mascotas?</label>
         <input type="checkbox" id="permiteMascotas" [(ngModel)]="propiedad.permiteMascotas" name="permiteMascotas">
       </div>
-  
+
       <div>
         <label for="tienePiscina">¿Tiene piscina?</label>
         <input type="checkbox" id="tienePiscina" [(ngModel)]="propiedad.tienePiscina" name="tienePiscina">
       </div>
-  
+
       <div>
         <label for="tieneAsador">¿Tiene asador?</label>
         <input type="checkbox" id="tieneAsador" [(ngModel)]="propiedad.tieneAsador" name="tieneAsador">
       </div>
-  
+
       <!-- Sección para múltiples imágenes -->
       <div class="images-section">
-        <label>Imágenes de la propiedad (máximo {{maxImagenes}}):</label>
+        <label>Imágenes de la propiedad</label>
         <div class="image-upload-container">
           <!-- Área de imágenes existentes -->
           <div class="image-previews" *ngIf="imagenes.length > 0">
@@ -71,24 +71,24 @@
               <button type="button" class="remove-image" (click)="removeImage(i)">×</button>
             </div>
           </div>
-  
+
           <!-- Botón de carga de imágenes -->
           <div class="image-upload" *ngIf="imagenes.length < maxImagenes">
             <label for="file-input" class="upload-label">
               <img src="../../../../assets/images/camera-icon.png" alt="Agregar imagen" class="camera-icon"/>
               <span>Agregar imagen{{ imagenes.length === 0 ? ' (requerido)' : '' }}</span>
             </label>
-            <input 
-              id="file-input" 
-              type="file" 
-              accept="image/*" 
-              (change)="onFileSelected($event)" 
+            <input
+              id="file-input"
+              type="file"
+              accept="image/*"
+              (change)="onFileSelected($event)"
               [required]="imagenes.length === 0"
               multiple>
           </div>
         </div>
       </div>
-  
+
       <div class="button-group">
         <button type="submit" class="btn submit-btn">Crear Propiedad</button>
         <button type="button" class="btn cancel-btn" (click)="cancelar()">Cancelar</button>

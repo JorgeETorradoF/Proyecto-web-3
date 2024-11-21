@@ -7,12 +7,11 @@ import { Arrendador } from '../../interfaces/arrendador.interface';
 @Component({
   selector: 'app-calificar-arrendador',
   templateUrl: './calificar-arrendador.component.html',
-  styleUrls: ['./calificar-arrendador.component.css']
+  styleUrls: ['./calificar-arrendador.component.css'],
 })
 export class CalificarArrendadorComponent implements OnInit {
   arrendadoresPorCalificar: Arrendador[] = []; // Lista de arrendadores
   arrendadorSeleccionado: Arrendador | null = null; // Arrendador seleccionado para calificar
-  idArrendatario: number = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -21,7 +20,7 @@ export class CalificarArrendadorComponent implements OnInit {
     private calificacionService: CalificacionService // Servicio para manejar las calificaciones
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     // Validar token JWT
     const token = localStorage.getItem('authToken');
     if (!token) {
@@ -30,58 +29,72 @@ export class CalificarArrendadorComponent implements OnInit {
       return;
     }
 
-    this.idArrendatario = +this.route.snapshot.paramMap.get('idArrendatario')!;
+    // Cargar los arrendadores por calificar
+    this.cargarArrendadores();
+  }
 
-    // Cargar los arrendadores por calificar a través del servicio
+  cargarArrendadores(): void {
     this.usuarioService.getAllArrendadores().subscribe(
       (data: Arrendador[]) => {
         this.arrendadoresPorCalificar = data;
+        console.log('Arrendadores cargados:', this.arrendadoresPorCalificar);
       },
       (error) => {
         console.error('Error al cargar arrendadores:', error);
+        if (error.status === 401) {
+          console.warn('Token no válido o expirado. Redirigiendo a inicio de sesión.');
+          localStorage.removeItem('authToken');
+          this.router.navigate(['/login']);
+        }
       }
     );
   }
 
-  calificar(arrendador: Arrendador) {
-    this.arrendadorSeleccionado = arrendador; // Selecciona al arrendador para calificar
+  calificar(arrendador: Arrendador): void {
+    this.arrendadorSeleccionado = arrendador; // Seleccionar arrendador para calificar
   }
 
-  enviarCalificacion() {
+  enviarCalificacion(): void {
     if (this.arrendadorSeleccionado && this.arrendadorSeleccionado.calificacion) {
-      const calificacionData = {
-        idArrendador: this.arrendadorSeleccionado.id,
-        calificacion: this.arrendadorSeleccionado.calificacion,
-        comentario: this.arrendadorSeleccionado.comentario || ''
-      };
+      const calificacion = this.arrendadorSeleccionado.calificacion;
 
       // Enviar la calificación a través del servicio
-      this.calificacionService.calificarArrendador(calificacionData).subscribe(
+      this.calificacionService.calificarArrendador(calificacion).subscribe(
         (response) => {
           console.log('Calificación enviada exitosamente:', response);
-          // Remover el arrendador de la lista tras ser calificado
-          this.arrendadoresPorCalificar = this.arrendadoresPorCalificar.filter(a => a.id !== this.arrendadorSeleccionado!.id);
+
+          // Remover arrendador calificado de la lista
+          this.arrendadoresPorCalificar = this.arrendadoresPorCalificar.filter(
+            (a) => a.id !== this.arrendadorSeleccionado!.id
+          );
+
           this.arrendadorSeleccionado = null; // Limpiar selección
-          alert('Calificación enviada con éxito!');
+          alert('Calificación enviada con éxito.');
         },
         (error) => {
           console.error('Error al enviar la calificación:', error);
-          alert('Error al enviar la calificación.');
+          if (error.status === 401) {
+            console.warn('Token no válido o expirado. Redirigiendo a inicio de sesión.');
+            localStorage.removeItem('authToken');
+            this.router.navigate(['/login']);
+          } else {
+            alert('Error al enviar la calificación. Intente nuevamente.');
+          }
         }
       );
     }
   }
 
-  // Métodos de navegación a otras vistas
-  navigateToVerContratos() {
-    this.router.navigate([`/arrendatario/${this.idArrendatario}/contratos`]);
+  // Métodos de navegación
+  navigateToVerContratos(): void {
+    this.router.navigate(['/arrendatario/contratos']);
   }
 
-  navigateToCalificar() {
-    this.router.navigate([`/arrendatario/${this.idArrendatario}/calificar`]);
+  navigateToCalificar(): void {
+    this.router.navigate(['/arrendatario/calificar']);
   }
 
-  navigateToPrincipal() {
-    this.router.navigate([`/arrendatario/${this.idArrendatario}`]);
+  navigateToPrincipal(): void {
+    this.router.navigate(['/arrendatario']);
   }
 }
