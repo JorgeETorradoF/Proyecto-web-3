@@ -9,11 +9,11 @@ import { Arrendatario } from '../../interfaces/arrendatario.interface';
 @Component({
   selector: 'app-calificar-arrendatario',
   templateUrl: './calificar-arrendatario.component.html',
-  styleUrls: ['./calificar-arrendatario.component.css'] // styleUrls corregido
+  styleUrls: ['./calificar-arrendatario.component.css']
 })
 export class CalificarArrendatarioComponent implements OnInit {
   arrendatariosPorCalificar: Arrendatario[] = []; // Lista de arrendatarios
-  arrendatarioSeleccionado: Arrendatario | null = null; // arrendatario seleccionado para calificar
+  arrendatarioSeleccionado: Arrendatario | null = null; // Arrendatario seleccionado para calificar
 
   constructor(
     private route: ActivatedRoute,
@@ -41,7 +41,7 @@ export class CalificarArrendatarioComponent implements OnInit {
         console.error('Error al cargar arrendatarios:', error);
         if (error.status === 401) {
           console.warn('Token no válido o expirado. Redirigiendo a inicio de sesión.');
-          localStorage.removeItem('token'); // Remover token inválido
+          localStorage.removeItem('authToken'); // Remover token inválido
           this.router.navigate(['/login']);
         }
       }
@@ -54,18 +54,16 @@ export class CalificarArrendatarioComponent implements OnInit {
 
   enviarCalificacion() {
     if (this.arrendatarioSeleccionado && this.arrendatarioSeleccionado.calificacion) {
-      const calificacionData = {
-        idArrendatario: this.arrendatarioSeleccionado.id,
-        calificacion: this.arrendatarioSeleccionado.calificacion,
-        comentario: this.arrendatarioSeleccionado.comentario || ''
-      };
+      const calificacion = this.arrendatarioSeleccionado.calificacion;
 
       // Enviar la calificación a través del servicio
-      this.calificacionService.calificarArrendatario(calificacionData).subscribe(
+      this.calificacionService.calificarArrendatario(calificacion).subscribe(
         (response) => {
           console.log('Calificación enviada exitosamente:', response);
           // Remover el arrendatario de la lista tras ser calificado
-          this.arrendatariosPorCalificar = this.arrendatariosPorCalificar.filter(a => a.id !== this.arrendatarioSeleccionado!.id);
+          this.arrendatariosPorCalificar = this.arrendatariosPorCalificar.filter(
+            (a) => a.id !== this.arrendatarioSeleccionado!.id
+          );
           this.arrendatarioSeleccionado = null; // Limpiar selección
           alert('Calificación enviada con éxito!');
         },
@@ -73,13 +71,15 @@ export class CalificarArrendatarioComponent implements OnInit {
           console.error('Error al enviar la calificación:', error);
           if (error.status === 401) {
             console.warn('Token no válido o expirado. Redirigiendo a inicio de sesión.');
-            localStorage.removeItem('token'); // Remover token inválido
+            localStorage.removeItem('authToken'); // Remover token inválido
             this.router.navigate(['/login']);
           } else {
             alert('Error al enviar la calificación.');
           }
         }
       );
+    } else {
+      alert('Por favor, seleccione un arrendatario y una calificación válida.');
     }
   }
 }

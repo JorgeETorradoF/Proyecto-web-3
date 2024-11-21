@@ -5,6 +5,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthInterceptor } from './services/auth.interceptor'
 
 import { AppComponent } from './app.component';
 import { ContratosArrendadorComponent } from './arrendador/contratos-arrendador/contratos-arrendador.component';
@@ -69,7 +71,13 @@ import { FooterArrendatarioComponent } from './arrendatario/footer-arrendatario/
     RouterModule
   ],
 
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true,
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

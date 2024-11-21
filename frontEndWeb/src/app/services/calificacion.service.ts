@@ -24,14 +24,14 @@ export class CalificacionService {
   }
 
   // Método para calificar al arrendador
-  calificarArrendador(calificacionData: { idArrendador: number; calificacion: number }): Observable<any> {
-    const url = `${this.baseUrl}/calificaciones/arrendador/${calificacionData.idArrendador}?calificacion=${calificacionData.calificacion}`;
+  calificarArrendador(calificacion: number): Observable<any> {
+    const url = `${this.baseUrl}/calificaciones/arrendador?calificacion=${calificacion}`;
     return this.http.post<any>(url, null, { headers: this.getHeaders() }); // Agregar headers con el token
   }
 
   // Método para calificar al arrendatario
-  calificarArrendatario(calificacionData: { idArrendatario: number; calificacion: number }): Observable<any> {
-    const url = `${this.baseUrl}/calificaciones/arrendatario/${calificacionData.idArrendatario}?calificacion=${calificacionData.calificacion}`;
+  calificarArrendatario(calificacion: number): Observable<any> {
+    const url = `${this.baseUrl}/calificaciones/arrendatario?calificacion=${calificacion}`;
     return this.http.post<any>(url, null, { headers: this.getHeaders() }); // Agregar headers con el token
   }
 }

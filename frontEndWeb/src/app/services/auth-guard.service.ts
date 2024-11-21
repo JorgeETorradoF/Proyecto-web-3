@@ -9,22 +9,38 @@ export class AuthGuardService {
 
   constructor(private router: Router) {}
 
-  // Getter para exponer el TOKEN_KEY de forma controlada
-  get tokenKey(): string {
-    return this.TOKEN_KEY;
-  }
-
   // Verifica si el usuario está autenticado verificando si el token existe en localStorage
   isAuthenticated(): boolean {
     const token = localStorage.getItem(this.TOKEN_KEY);
     return !!token; // Retorna true si el token existe, false en caso contrario
   }
 
-  // Valida la autenticación y redirige al login si no hay token
-  checkAuthentication(): void {
+  // Obtiene el rol del usuario decodificando el token
+  getUserRole(): string | null {
+    const token = localStorage.getItem(this.TOKEN_KEY);
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1])); // Decodificar el payload del token
+        return payload.userType || null; // Retornar el rol del usuario
+      } catch (e) {
+        console.error('Error al decodificar el token:', e);
+      }
+    }
+    return null;
+  }
+
+  // Valida la autenticación y redirige al login si no hay token o el rol no es válido
+  checkAuthenticationAndRole(requiredRole: string): void {
     if (!this.isAuthenticated()) {
       console.warn('Token no encontrado. Redirigiendo a inicio de sesión.');
       this.router.navigate(['/login']);
+      return;
+    }
+
+    const userRole = this.getUserRole();
+    if (userRole !== requiredRole) {
+      console.warn(`Rol no autorizado: ${userRole}. Redirigiendo.`);
+      this.router.navigate(['/']);
     }
   }
 

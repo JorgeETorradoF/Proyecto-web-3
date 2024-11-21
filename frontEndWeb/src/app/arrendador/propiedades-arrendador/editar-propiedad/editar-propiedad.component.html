@@ -3,7 +3,7 @@
 <div class="container-editar">
   <!-- Sección de la Imagen Editable -->
   <div class="left-section">
-    <img [src]="nuevaImagen || getImagenUrl(propiedad.urlImagen)" alt="Imagen de la propiedad" class="imagen-propiedad" />
+    <img [src]="imagenUrl" alt="Imagen de la propiedad" class="editar-imagen" />
     <div class="edit-overlay" (click)="triggerFileInput()">
       <img src="../../../../assets/images/editIcon.png" alt="Editar Imagen" />
     </div>
@@ -15,7 +15,6 @@
       (change)="editarImagen($event)"
     />
   </div>
-
 
   <!-- Sección del Formulario -->
   <div class="right-section">

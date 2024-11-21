@@ -1,17 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { PropiedadesService } from '../../services/propiedades.service';
 import { ContratosService } from '../../services/contratos.service';
 import { Propiedad } from '../../interfaces/propiedad.interface';
-
-interface Solicitud {
-  fechaInicio: string;
-  fechaFinal: string;
-  cantidadPersonas: number;
-  enConflicto: boolean;
-}
+import { Solicitud } from '../../interfaces/solicitud.interface';
 
 @Component({
   selector: 'app-solicitar-arriendo',
@@ -19,10 +11,9 @@ interface Solicitud {
   styleUrls: ['./solicitar-arriendo.component.css'],
 })
 export class SolicitarArriendoComponent implements OnInit {
-  idArrendatario: number = 0;
   propiedad: Propiedad | undefined;
   solicitud = {
-    fechaInicial: '',
+    fechaInicio: '',
     fechaFinal: '',
     cantidadPersonas: 1,
     enConflicto: false,
@@ -31,126 +22,105 @@ export class SolicitarArriendoComponent implements OnInit {
   fechaHoy: string = '';
 
   constructor(
-    private route: ActivatedRoute,
     private router: Router,
+    private route: ActivatedRoute,
     private propiedadesService: PropiedadesService,
     private contratosService: ContratosService
   ) {}
 
   ngOnInit(): void {
-    const token = localStorage.getItem('authToken'); // Obtener el token JWT
+    const token = localStorage.getItem('authToken'); // Validar token JWT
     if (!token) {
       console.warn('Token no encontrado. Redirigiendo a inicio de sesión.');
       this.router.navigate(['/login']);
       return;
     }
 
-    this.idArrendatario = +this.route.snapshot.paramMap.get('idArrendatario')!;
+    // Inicializar fecha mínima para inputs
+    this.fechaHoy = new Date().toISOString().split('T')[0];
+
     const propiedadId = this.route.snapshot.paramMap.get('idPropiedad');
-    const idArrendador = this.route.snapshot.paramMap.get('idArrendador');
-
-    console.log(`ID de propiedad recibido: ${propiedadId}`);
-    console.log(`ID de arrendador recibido: ${idArrendador}`);
-
-    if (propiedadId && idArrendador) {
-      this.propiedadesService
-        .getPropiedad(parseInt(idArrendador), parseInt(propiedadId))
-        .subscribe(
-          (data: Propiedad) => {
-            this.propiedad = data;
-          },
-          (error) => {
-            console.error('Error al obtener la propiedad:', error);
-          }
-        );
+    if (propiedadId) {
+      this.propiedadesService.getPropiedad(+propiedadId).subscribe(
+        (data: Propiedad) => {
+          this.propiedad = data;
+        },
+        (error) => {
+          console.error('Error al obtener la propiedad:', error);
+          this.router.navigate(['/principal']);
+        }
+      );
     } else {
-      console.error('No se encontraron los parámetros de propiedad o arrendador.');
+      console.error('ID de propiedad no encontrado en la ruta.');
+      this.router.navigate(['/principal']);
     }
   }
 
   onSubmit(): void {
-    console.log('Datos de la solicitud antes del envío:', this.solicitud);
-
     if (!this.propiedad) {
       alert('Propiedad no encontrada.');
-      console.warn('No se encontró la propiedad al intentar enviar la solicitud.');
       return;
     }
 
-    const fechaInicio = new Date(this.solicitud.fechaInicial);
+    const fechaInicio = new Date(this.solicitud.fechaInicio);
     const fechaFinal = new Date(this.solicitud.fechaFinal);
 
     if (fechaInicio > fechaFinal) {
       alert('La fecha final debe ser posterior a la fecha de inicio.');
-      console.warn('Fechas inválidas: Fecha final es anterior a la fecha de inicio.');
       return;
     }
 
     if (fechaInicio < new Date()) {
-      alert('La fecha de inicio debe ser superior a la fecha de hoy.');
-      console.warn('Fecha de inicio inválida: La fecha de inicio es anterior al día actual.');
+      alert('La fecha de inicio debe ser superior a la fecha actual.');
       return;
     }
 
     const solicitud: Solicitud = {
-      fechaInicio: this.formatFechaISO(this.solicitud.fechaInicial),
+      fechaInicio: this.formatFechaISO(this.solicitud.fechaInicio),
       fechaFinal: this.formatFechaISO(this.solicitud.fechaFinal),
       cantidadPersonas: this.solicitud.cantidadPersonas,
       enConflicto: false,
     };
 
-    console.log('Solicitud preparada para enviar:', solicitud);
-
-    const idArrendador = this.route.snapshot.paramMap.get('idArrendador');
-    if (idArrendador) {
-      console.log('ID de arrendador:', idArrendador, 'ID de propiedad:', this.propiedad.id);
-
-      this.contratosService
-        .solicitarArriendo(parseInt(idArrendador), this.propiedad.id, solicitud)
-        .subscribe(
-          (response) => {
-            console.log('Respuesta del servidor:', response);
-            alert('¡Solicitud enviada con éxito!');
-            this.router.navigate(['/principal-arrendatario']);
-          },
-          (error) => {
-            console.error('Error al enviar la solicitud:', error);
-            alert('Error al enviar la solicitud. Intente nuevamente.');
-          }
-        );
-    } else {
-      console.warn('ID de arrendador no encontrado.');
-    }
+    this.contratosService.solicitarArriendo(this.propiedad.id, solicitud).subscribe(
+      (response) => {
+        console.log('Solicitud enviada:', response);
+        alert('¡Solicitud enviada con éxito!');
+        this.router.navigate(['/principal']);
+      },
+      (error) => {
+        console.error('Error al enviar la solicitud:', error);
+        alert('Error al enviar la solicitud. Intente nuevamente.');
+      }
+    );
   }
 
   formatFechaISO(fecha: string): string {
     const date = new Date(fecha);
-    const isoDate = date.toISOString();
-    console.log('Fecha formateada en ISO:', isoDate);
-    return isoDate;
+    return date.toISOString();
   }
 
   validarFechas(): void {
-    const fechaInicio = new Date(this.solicitud.fechaInicial);
+    const fechaInicio = new Date(this.solicitud.fechaInicio);
     const fechaFinal = new Date(this.solicitud.fechaFinal);
 
     this.errorFechas =
       fechaInicio > fechaFinal || fechaInicio < new Date(this.fechaHoy);
 
     if (this.errorFechas) {
-      console.error('Error: Las fechas no concuerdan.');
+      console.error('Error: Las fechas no son válidas.');
     }
   }
 
-  navigateToVerContratos() {
-    this.router.navigate([`/arrendatario/${this.idArrendatario}/contratos`]);
+  navigateToVerContratos(): void {
+    this.router.navigate(['/arrendatario/contratos']);
   }
 
-  navigateToCalificar() {
-    this.router.navigate([`/arrendatario/${this.idArrendatario}/calificar`]);
+  navigateToCalificar(): void {
+    this.router.navigate(['/arrendatario/calificar']);
   }
 
-  navigateToPrincipal() {
-    this.router.navigate([`/arrendatario/${this.idArrendatario}`]);
+  navigateToPrincipal(): void {
+    this.router.navigate(['/arrendatario']);
   }
 }

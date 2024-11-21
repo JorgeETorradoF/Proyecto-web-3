@@ -10,43 +10,42 @@ import { Contract } from '../../interfaces/contrato.interface';
 })
 export class ContratosArrendatarioComponent implements OnInit {
   contratos: Contract[] = []; // Array para almacenar los contratos
-  idArrendatario!: number; // ID del Arrendatario
 
   constructor(
-    private route: ActivatedRoute,
     private router: Router,
     private contratosService: ContratosService
   ) {}
 
-  ngOnInit() {
-    // Validar token JWT
+  ngOnInit(): void {
     const token = localStorage.getItem('authToken');
     if (!token) {
-      console.warn('Token no encontrado. Redirigiendo a inicio de sesión.');
-      this.router.navigate(['/login']);
+      console.error('Token no encontrado. Redirigiendo a inicio de sesión.');
+      this.router.navigate(['/login']); // Redirigir al inicio de sesión si no hay token
       return;
     }
 
-    // Obtener el ID del Arrendatario de la URL
-    this.idArrendatario = +this.route.snapshot.paramMap.get('idArrendatario')!;
-    console.log('ID del Arrendatario:', this.idArrendatario);
-    this.obtenerContratos();
+    this.obtenerContratos(); // Llamar al método para obtener los contratos
   }
 
-  // Método para obtener los contratos del backend usando el servicio
-  obtenerContratos() {
-    this.contratosService.getContratosArrendatario(this.idArrendatario).subscribe(
-      data => {
-        console.log('Contratos obtenidos:', data); // Verifica la respuesta en la consola
-        this.contratos = data; // Almacena los contratos en la propiedad
+  // Método para obtener los contratos del arrendatario desde el servicio
+  obtenerContratos(): void {
+    this.contratosService.getContratosArrendatario().subscribe(
+      (data) => {
+        console.log('Contratos obtenidos:', data);
+        this.contratos = data; // Asignar los contratos obtenidos a la variable
       },
-      error => {
-        console.error('Error al obtener contratos:', error); // imprime si llega a haber algún error
+      (error) => {
+        console.error('Error al obtener contratos:', error); // Manejo de errores
+        if (error.status === 401) {
+          console.warn('Token no válido o expirado. Redirigiendo a inicio de sesión.');
+          localStorage.removeItem('authToken'); // Eliminar token inválido
+          this.router.navigate(['/login']); // Redirigir al inicio de sesión
+        }
       }
     );
   }
 
-  // Método para obtener el estado del contrato en formato legible
+  // Método para obtener el estado del contrato en un formato legible
   getEstadoContrato(estado: number): string {
     switch (estado) {
       case 1:
@@ -56,20 +55,20 @@ export class ContratosArrendatarioComponent implements OnInit {
       case 0:
         return 'Pendiente';
       default:
-        return 'Desconocido'; // Siempre estará entre los 3 primeros pero el compilador jode si no hay un default :'v
+        return 'Desconocido'; // Fallback para estados inesperados
     }
   }
 
+   // Métodos de navegación a otras vistas
+   navigateToVerContratos(): void {
+    this.router.navigate(['/arrendatario/contratos']);
+  }
   // Métodos de navegación a otras vistas
-  navigateToVerContratos() {
-    this.router.navigate([`/arrendatario/${this.idArrendatario}/contratos`]);
+  navigateToCalificar(): void {
+    this.router.navigate(['/arrendatario/calificar']); // Redirigir a la vista de calificación
   }
 
-  navigateToCalificar() {
-    this.router.navigate([`/arrendatario/${this.idArrendatario}/calificar`]);
-  }
-
-  navigateToPrincipal() {
-    this.router.navigate([`/arrendatario/${this.idArrendatario}`]);
+  navigateToPrincipal(): void {
+    this.router.navigate(['/arrendatario']); // Redirigir a la vista principal del arrendatario
   }
 }

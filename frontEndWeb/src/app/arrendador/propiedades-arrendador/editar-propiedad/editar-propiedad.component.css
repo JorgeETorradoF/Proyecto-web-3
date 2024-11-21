@@ -13,25 +13,20 @@
 
 .left-section {
   flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: relative;
-  max-width: 500px;
 }
 
-.right-section {
-  flex: 2;
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
-  min-width: 80vh;
-}
-
-.imagen-propiedad {
+.editar-imagen {
   width: 100%;
-  height: 400px;
+  max-width: 400px;
+  max-height: 400px;
   object-fit: cover;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
 .edit-overlay {
@@ -49,7 +44,6 @@
   cursor: pointer;
   border-radius: 10px;
 }
-
 .edit-overlay:hover {
   opacity: 1;
 }
@@ -58,6 +52,15 @@
   width: 40px;
   height: 40px;
   filter: brightness(0) invert(1);
+}
+
+.right-section {
+  flex: 2;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  min-width: 80vh;
 }
 
 h2 {
@@ -191,6 +194,10 @@ button[type="button"]:hover {
     width: 100%;
     max-width: 800px;
   }
+
+  .editar-imagen {
+    max-width: 100%;
+  }
 }
 
 @media (max-width: 768px) {
@@ -202,8 +209,8 @@ button[type="button"]:hover {
     font-size: 1.75rem;
   }
 
-  .imagen-propiedad {
-    height: 300px;
+  .editar-imagen {
+    height: 250px;
   }
 
   button {

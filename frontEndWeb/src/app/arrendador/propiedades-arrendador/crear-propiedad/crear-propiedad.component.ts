@@ -1,12 +1,8 @@
+import { ImagenPreview } from './../../../interfaces/imagen-preview.interface';
 import { Component, OnInit } from '@angular/core';
 import { PropiedadesService } from '../../../services/propiedades.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { Propiedad } from '../../../interfaces/propiedad.interface';
-
-interface ImagenPreview {
-  file: File;
-  preview: string | ArrayBuffer;
-}
 
 @Component({
   selector: 'app-crear-propiedad',
@@ -30,7 +26,6 @@ export class CrearPropiedadComponent implements OnInit {
     urlImagen: ''
   };
 
-  idArrendador!: number;
   selectedFile: File | null = null;
   imagenes: ImagenPreview[] = [];
   imagenSeleccionada: string | ArrayBuffer | null = null;
@@ -38,7 +33,6 @@ export class CrearPropiedadComponent implements OnInit {
 
   constructor(
     private propiedadesService: PropiedadesService,
-    private route: ActivatedRoute,
     private router: Router
   ) {}
 
@@ -48,13 +42,9 @@ export class CrearPropiedadComponent implements OnInit {
     if (!token) {
       console.error('Token no encontrado. Redirigiendo a inicio de sesión.');
       this.router.navigate(['/login']);
-      return;
     }
-
-    this.idArrendador = +this.route.snapshot.paramMap.get('idArrendador')!;
   }
 
-  // Método para seleccionar el archivo
   onFileSelected(event: any) {
     this.selectedFile = event.target.files[0];
     if (this.selectedFile) {
@@ -67,7 +57,6 @@ export class CrearPropiedadComponent implements OnInit {
     console.log('Archivo seleccionado:', this.selectedFile);
   }
 
-  // Método para crear una propiedad nueva
   crearPropiedad() {
     if (
       this.propiedad.nombrePropiedad === '' ||
@@ -79,31 +68,23 @@ export class CrearPropiedadComponent implements OnInit {
       return;
     }
 
-    // Si no se selecciona la imagen
     if (!this.selectedFile) {
       console.error('Error: No se ha seleccionado ninguna imagen');
       return;
     }
 
-    // Crear FormData para enviar la imagen junto con los datos de la propiedad
     const formData = new FormData();
     formData.append('imagen', this.selectedFile);
 
-    // Inicializa los campos booleanos si no están seleccionados
-    this.propiedad.permiteMascotas = this.propiedad.permiteMascotas || false;
-    this.propiedad.tienePiscina = this.propiedad.tienePiscina || false;
-    this.propiedad.tieneAsador = this.propiedad.tieneAsador || false;
-
-    // Crea el objeto propiedadDTO y lo agrega a formData
     const propiedadDTO = {
       nombrePropiedad: this.propiedad.nombrePropiedad.trim(),
-      descripcion: this.propiedad.descripcion ? this.propiedad.descripcion.trim() : '',
-      valorNoche: this.propiedad.valorNoche ? this.propiedad.valorNoche.toString() : '0',
+      descripcion: this.propiedad.descripcion?.trim() || '',
+      valorNoche: this.propiedad.valorNoche.toString(),
       departamento: this.propiedad.departamento.trim(),
       municipio: this.propiedad.municipio.trim(),
       tipoIngreso: this.propiedad.tipoIngreso.trim(),
-      cantidadHabitaciones: this.propiedad.cantidadHabitaciones ? this.propiedad.cantidadHabitaciones.toString() : '1',
-      cantidadBanos: this.propiedad.cantidadBanos ? this.propiedad.cantidadBanos.toString() : '0',
+      cantidadHabitaciones: this.propiedad.cantidadHabitaciones.toString(),
+      cantidadBanos: this.propiedad.cantidadBanos.toString(),
       permiteMascotas: this.propiedad.permiteMascotas.toString(),
       tienePiscina: this.propiedad.tienePiscina.toString(),
       tieneAsador: this.propiedad.tieneAsador.toString(),
@@ -111,42 +92,37 @@ export class CrearPropiedadComponent implements OnInit {
 
     formData.append('propiedadDTO', new Blob([JSON.stringify(propiedadDTO)], { type: 'application/json' }));
 
-    // Llama al servicio para crear la propiedad con la imagen y los datos
-    this.propiedadesService.crearPropiedadConImagen(this.idArrendador, formData).subscribe(
+    this.propiedadesService.crearPropiedadConImagen(formData).subscribe(
       (data) => {
         console.log('Propiedad creada:', data);
-        this.router.navigate([`/arrendador/${this.idArrendador}/propiedades`]);
+        this.router.navigate(['/arrendador/propiedades']);
       },
       (error) => {
         console.error('Error al crear propiedad:', error);
         if (error.status === 401) {
           console.warn('Token no válido o expirado. Redirigiendo a inicio de sesión.');
-          localStorage.removeItem('token');
+          localStorage.removeItem('authToken');
           this.router.navigate(['/login']);
         }
       }
     );
   }
 
-  // Método que se invocará al enviar el formulario
   onSubmit() {
     this.crearPropiedad();
   }
 
-  // Método para cambiar la imagen seleccionada
   cambiarImagen() {
     this.imagenSeleccionada = null;
     this.selectedFile = null;
   }
 
-  // Método para cancelar la creación de propiedad
   cancelar() {
     if (confirm('¿Está seguro que desea cancelar? Los cambios no guardados se perderán.')) {
-      this.router.navigate([`/arrendador/${this.idArrendador}/propiedades`]);
+      this.router.navigate(['/arrendador/propiedades']);
     }
   }
 
-  // Método para eliminar una imagen seleccionada
   removeImage(index: number) {
     this.imagenes.splice(index, 1);
   }

@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ContratosArrendadorComponent } from './arrendador/contratos-arrendador/contratos-arrendador.component';
-import { LoginRegisterComponent } from './Landing-Page/login-register/login-register.component'; // Componente de login
+import { LoginRegisterComponent } from './Landing-Page/login-register/login-register.component';
 import { ContratosArrendatarioComponent } from './arrendatario/contratos-arrendatario/contratos-arrendatario.component';
 import { PrincipalArrendadorComponent } from './arrendador/principal-arrendador/principal-arrendador.component';
 import { PrincipalArrendatarioComponent } from './arrendatario/principal-arrendatario/principal-arrendatario.component';
@@ -13,28 +13,28 @@ import { SolicitarArriendoComponent } from './arrendatario/solicitar-arriendo/so
 import { CalificarArrendadorComponent } from './arrendatario/calificar-arrendador/calificar-arrendador.component';
 import { CalificarArrendatarioComponent } from './arrendador/calificar-arrendatario/calificar-arrendatario.component';
 import { PaginaPrincipalComponent } from './Landing-Page/pagina-principal/pagina-principal.component';
-import {DetallePropiedadArrendatarioComponent} from './arrendatario/detalle-propiedad-arrendatario/detalle-propiedad-arrendatario.component';
+import { DetallePropiedadArrendatarioComponent } from './arrendatario/detalle-propiedad-arrendatario/detalle-propiedad-arrendatario.component';
 
 const routes: Routes = [
   { path: '', component: PaginaPrincipalComponent },
   { path: 'login', component: LoginRegisterComponent },
-  { path: 'arrendador/:idArrendador/contratos', component: ContratosArrendadorComponent },
-  { path: 'arrendatario/:idArrendatario/contratos', component: ContratosArrendatarioComponent },
-  { path: 'arrendador/:idArrendador', component: PrincipalArrendadorComponent },
-  { path: 'arrendatario/:idArrendatario', component: PrincipalArrendatarioComponent },
-  { path: 'arrendador/:idArrendador/propiedades', component: PropiedadesArrendadorComponent },
-  { path: 'arrendador/:idArrendador/propiedades/crear-propiedad', component: CrearPropiedadComponent },
-  { path: 'arrendador/:idArrendador/propiedades/detalle-propiedad/:idPropiedad', component: DetallePropiedadComponent},
-  { path: 'arrendador/:idArrendador/propiedades/editar-propiedad/:idPropiedad', component: EditarPropiedadComponent},
-  { path: 'arrendatario/:idArrendatario/solicitar-arriendo/:idPropiedad/:idArrendador', component: SolicitarArriendoComponent },
-  { path: 'arrendatario/:idArrendatario/calificar', component: CalificarArrendadorComponent },
-  { path: 'arrendador/:idArrendador/calificar', component: CalificarArrendatarioComponent },
-  { path: 'arrendatario/:idArrendatario/detalle-propiedad/:idPropiedad', component: DetallePropiedadArrendatarioComponent}
-
+  { path: 'arrendador/contratos', component: ContratosArrendadorComponent },
+  { path: 'arrendatario/contratos', component: ContratosArrendatarioComponent },
+  { path: 'arrendador', component: PrincipalArrendadorComponent },
+  { path: 'arrendatario', component: PrincipalArrendatarioComponent },
+  { path: 'arrendador/propiedades', component: PropiedadesArrendadorComponent },
+  { path: 'arrendador/propiedades/crear-propiedad', component: CrearPropiedadComponent },
+  { path: 'arrendador/propiedades/detalle-propiedad/:idPropiedad', component: DetallePropiedadComponent },
+  { path: 'arrendador/propiedades/editar-propiedad/:idPropiedad', component: EditarPropiedadComponent },
+  { path: 'arrendatario/solicitar-arriendo/:idPropiedad', component: SolicitarArriendoComponent },
+  { path: 'arrendatario/calificar', component: CalificarArrendadorComponent },
+  { path: 'arrendador/calificar', component: CalificarArrendatarioComponent },
+  { path: 'arrendatario/detalle-propiedad/:idPropiedad', component: DetallePropiedadArrendatarioComponent },
+  { path: 'detalle-propiedad/:idPropiedad', component: DetallePropiedadArrendatarioComponent }
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

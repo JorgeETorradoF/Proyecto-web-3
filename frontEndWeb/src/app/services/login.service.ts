@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface LoginResponse {
   redirectUrl: string;
-  userToken: string;       // Token JWT
+  userToken: string; // Token JWT
 }
 
 @Injectable({
@@ -26,7 +26,7 @@ export class LoginService {
     return this.http.post<LoginResponse>(url, data);
   }
 
-  // Guardar el token en localStorage, que espero sea así xd
+  // Guardar el token en localStorage
   saveToken(token: string): void {
     localStorage.setItem(this.TOKEN_KEY, token);
   }
@@ -36,7 +36,33 @@ export class LoginService {
     return localStorage.getItem(this.TOKEN_KEY);
   }
 
-  // Verificar si el usuario está autenticado (existe un token válido)
+  // Decodificar el token JWT
+  decodeToken(): any {
+    const token = this.getToken();
+    if (!token) return null;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload;
+    } catch (error) {
+      console.error('Error al decodificar el token:', error);
+      return null;
+    }
+  }
+
+  // Verificar si el usuario es arrendador
+  isArrendador(): boolean {
+    const decodedToken = this.decodeToken();
+    return decodedToken?.rol === 'ARRENDADOR';
+  }
+
+  // Verificar si el usuario es arrendatario
+  isArrendatario(): boolean {
+    const decodedToken = this.decodeToken();
+    return decodedToken?.rol === 'ARRENDATARIO';
+  }
+
+  // Verificar si el usuario está autenticado
   isAuthenticated(): boolean {
     return !!this.getToken();
   }
@@ -44,5 +70,11 @@ export class LoginService {
   // Eliminar el token (Cerrar sesión)
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
+  }
+
+  // Crear headers con el token
+  getAuthHeaders(): HttpHeaders {
+    const token = this.getToken();
+    return new HttpHeaders().set('Authorization', `Bearer ${token}`);
   }
 }

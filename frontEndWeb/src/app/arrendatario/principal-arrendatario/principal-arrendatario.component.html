@@ -21,7 +21,9 @@
         <p>{{ propiedad.municipio }}, {{ propiedad.departamento }}</p>
         <p>Precio: ${{ propiedad.valorNoche | number }} COP / noche</p>
         <p>Capacidad: {{ propiedad.cantidadHabitaciones }} habitaciones / {{ propiedad.cantidadBanos }} baños</p>
-        <a [routerLink]="['/arrendatario', this.idArrendatario, 'detalle-propiedad',propiedad.id]" class="btn-ver-detalle">Ver detalles</a>
+        <a [routerLink]="['/detalle-propiedad', propiedad.id]" class="btn-ver-detalle">
+          Ver detalles
+        </a>
       </div>
     </div>
   </div>

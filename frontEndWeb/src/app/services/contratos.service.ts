@@ -1,8 +1,22 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Contract } from '../interfaces/contrato.interface';
-import { Solicitud } from '../interfaces/solicitud.interface';
+
+interface Contract {
+  fechaInicio: string;
+  fechaFinal: string;
+  id: number;
+  idPropiedad: number;
+  idArrendatario: number;
+  estado: number;
+  precio: number;
+}
+interface Solicitud {
+  fechaInicio: string;
+  fechaFinal: string;
+  cantidadPersonas: number;
+  enConflicto: boolean;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -25,33 +39,33 @@ export class ContratosService {
     });
   }
 
-  // Obtener contratos por ID de arrendador
-  getContratosArrendador(idArrendador: number): Observable<Contract[]> {
-    const url = `${this.baseUrl}/arrendador/${idArrendador}/mis-contratos`;
+  // Obtener contratos del arrendador
+  getContratosArrendador(): Observable<Contract[]> {
+    const url = `${this.baseUrl}/arrendador/mis-contratos`;
     return this.http.get<Contract[]>(url, { headers: this.getHeaders() });
   }
 
   // Aceptar contrato
-  aceptarContrato(idArrendador: number, idContrato: number): Observable<any> {
-    const url = `${this.baseUrl}/arrendador/${idArrendador}/aceptar-contrato/${idContrato}`;
+  aceptarContrato(idContrato: number): Observable<any> {
+    const url = `${this.baseUrl}/arrendador/aceptar-contrato/${idContrato}`;
     return this.http.put<any>(url, {}, { headers: this.getHeaders() });
   }
 
   // Rechazar contrato
-  rechazarContrato(idArrendador: number, idContrato: number): Observable<any> {
-    const url = `${this.baseUrl}/arrendador/${idArrendador}/rechazar-contrato/${idContrato}`;
+  rechazarContrato(idContrato: number): Observable<any> {
+    const url = `${this.baseUrl}/arrendador/rechazar-contrato/${idContrato}`;
     return this.http.put<any>(url, {}, { headers: this.getHeaders() });
   }
 
-  // Obtener contratos por ID de arrendatario
-  getContratosArrendatario(idArrendatario: number): Observable<Contract[]> {
-    const url = `${this.baseUrl}/arrendatario/${idArrendatario}/mis-contratos`;
+  // Obtener contratos del arrendatario
+  getContratosArrendatario(): Observable<Contract[]> {
+    const url = `${this.baseUrl}/arrendatario/mis-contratos`;
     return this.http.get<Contract[]>(url, { headers: this.getHeaders() });
   }
 
   // Solicitar arriendo
-  solicitarArriendo(idArrendador: number, idPropiedad: number, solicitud: Solicitud): Observable<any> {
-    const url = `${this.baseUrl}/arrendatario/${idArrendador}/solicitar-arriendo/${idPropiedad}`;
+  solicitarArriendo(idPropiedad: number, solicitud: Solicitud): Observable<any> {
+    const url = `${this.baseUrl}/arrendatario/solicitar-arriendo/${idPropiedad}`;
     return this.http.post<any>(url, solicitud, { headers: this.getHeaders() });
   }
 }

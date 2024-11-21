@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
   templateUrl: './login-register.component.html',
   styleUrls: ['./login-register.component.css']
 })
+
 export class LoginRegisterComponent {
   isActive: boolean = false;
   errorMessage: string = '';
@@ -33,7 +34,6 @@ export class LoginRegisterComponent {
     this.successMessage = '';
   }
 
-  // Manejo del formulario de inicio de sesión
   onLoginSubmit(event: Event): void {
     event.preventDefault();
     const form = event.target as HTMLFormElement;
@@ -43,16 +43,33 @@ export class LoginRegisterComponent {
     this.loginService.login({ correo: email, contraseña: password }).subscribe(
       (response) => {
         console.log('Inicio de sesión exitoso:', response);
-        if (response.userToken) { // Ajusta aquí para usar 'userToken'
-          this.loginService.saveToken(response.userToken); // Guardar el token correctamente
+
+        if (response.userToken) {
+          // Guardar el token en localStorage
+          this.loginService.saveToken(response.userToken);
           console.log('Token guardado en localStorage:', localStorage.getItem('authToken'));
-          this.router.navigate([response.redirectUrl]); // Redirigir a la URL
+
+          // Decodificar el token para determinar el rol del usuario
+          const payload = JSON.parse(atob(response.userToken.split('.')[1]));
+          const userType = payload.userType;
+
+          // Redirigir según el rol
+          if (userType === 'ARRENDADOR') {
+            this.router.navigate(['/arrendador']); // Redirige al panel principal de arrendadores
+          } else if (userType === 'ARRENDATARIO') {
+            this.router.navigate(['/arrendatario']); // Redirige al panel principal de arrendatarios
+          } else {
+            console.error('Rol no reconocido en el token:', userType);
+            this.errorMessage = 'Rol no reconocido. Por favor, contacte al administrador.';
+          }
         } else {
           console.error('El token no está presente en la respuesta del servidor.');
+          this.errorMessage = 'Error al iniciar sesión. Por favor intente de nuevo.';
         }
       },
       (error) => {
         console.error('Error en el inicio de sesión:', error);
+        this.errorMessage = error.error?.error || 'Error al iniciar sesión. Por favor intente de nuevo.';
       }
     );
   }
@@ -88,8 +105,8 @@ export class LoginRegisterComponent {
 
         // Redirigir según el rol del usuario
         role
-          ? this.router.navigate([`/arrendador/${response.id}`])
-          : this.router.navigate([`/arrendatario/${response.id}`]);
+          ? this.router.navigate(['/arrendador/${response.id}'])
+          : this.router.navigate(['/arrendatario/${response.id}']);
         this.successMessage = 'Registro exitoso. Redirigiendo...';
       },
       (error) => {
@@ -100,3 +117,4 @@ export class LoginRegisterComponent {
     );
   }
 }
+

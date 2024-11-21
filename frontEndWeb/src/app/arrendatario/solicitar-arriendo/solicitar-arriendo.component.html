@@ -32,7 +32,7 @@
       <input
         type="date"
         id="fechaInicial"
-        [(ngModel)]="solicitud.fechaInicial"
+        [(ngModel)]="solicitud.fechaInicio"
         name="fechaInicial"
         (change)="validarFechas()"
         [min]="fechaHoy"
@@ -48,7 +48,7 @@
         [(ngModel)]="solicitud.fechaFinal"
         name="fechaFinal"
         (change)="validarFechas()"
-        [min]="solicitud.fechaInicial"
+        [min]="solicitud.fechaInicio"
         [ngClass]="{'input-error': errorFechas}"
         required
       />

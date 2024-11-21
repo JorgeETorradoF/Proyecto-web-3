@@ -11,16 +11,15 @@ import { Propiedad } from '../../interfaces/propiedad.interface';
 export class DetallePropiedadArrendatarioComponent implements OnInit {
   propiedad!: Propiedad;
   idPropiedad!: number;
-  idArrendatario: number = 0;
 
   constructor(
-    private route: ActivatedRoute,
     private router: Router,
+    private route: ActivatedRoute, // Inyección del servicio ActivatedRoute
     private propiedadesService: PropiedadesService
   ) {}
 
   ngOnInit(): void {
-    // Validar token JWT
+    // Validar la existencia del token JWT
     const token = localStorage.getItem('authToken');
     if (!token) {
       console.warn('Token no encontrado. Redirigiendo a inicio de sesión.');
@@ -28,36 +27,45 @@ export class DetallePropiedadArrendatarioComponent implements OnInit {
       return;
     }
 
-    // Obtener ID de arrendatario y propiedad de la URL
-    this.idArrendatario = +this.route.snapshot.paramMap.get('idArrendatario')!;
+    // Obtener el ID de la propiedad desde la URL
     const propiedadId = this.route.snapshot.paramMap.get('idPropiedad');
     if (propiedadId) {
       this.idPropiedad = +propiedadId;
       this.cargarPropiedad();
     } else {
       console.error('ID de propiedad no encontrado en la ruta');
+      this.router.navigate(['/arrendatario']);
     }
   }
 
   cargarPropiedad(): void {
-    this.propiedadesService.getPropiedad(1, this.idPropiedad).subscribe(
+    this.propiedadesService.getPropiedad(this.idPropiedad).subscribe(
       (propiedad) => {
         this.propiedad = propiedad;
         console.log('Propiedad cargada:', propiedad);
       },
       (error) => {
         console.error('Error al cargar la propiedad:', error);
+        if (error.status === 401) {
+          console.warn('Token no válido o expirado. Redirigiendo a inicio de sesión.');
+          localStorage.removeItem('authToken');
+          this.router.navigate(['/login']);
+        } else {
+          alert('Error al cargar la propiedad. Intente más tarde.');
+        }
       }
     );
   }
 
-  redirigirSolicitarArriendo(idArrendador: number): void {
-    console.log(
-      `Redirigiendo a solicitar arriendo con idArrendador: ${idArrendador} y idPropiedad: ${this.idPropiedad}`
-    );
-    this.router.navigate([
-      `/arrendatario/${this.idArrendatario}/solicitar-arriendo/${this.idPropiedad}/${idArrendador}`,
-    ]);
+  redirigirSolicitarArriendo(): void {
+    if (this.propiedad?.idArrendador) {
+      console.log(
+        `Redirigiendo a solicitar arriendo con idPropiedad: ${this.idPropiedad} y idArrendador: ${this.propiedad.idArrendador}`
+      );
+      this.router.navigate([`/arrendatario/solicitar-arriendo/${this.idPropiedad}/${this.propiedad.idArrendador}`]);
+    } else {
+      console.error('No se puede redirigir: idArrendador no definido en la propiedad.');
+    }
   }
 
   getImagenUrl(url: string | null): string {
@@ -65,15 +73,15 @@ export class DetallePropiedadArrendatarioComponent implements OnInit {
   }
 
   // Métodos de navegación a otras vistas
-  navigateToVerContratos() {
-    this.router.navigate([`/arrendatario/${this.idArrendatario}/contratos`]);
+  navigateToVerContratos(): void {
+    this.router.navigate(['/arrendatario/contratos']);
   }
 
-  navigateToCalificar() {
-    this.router.navigate([`/arrendatario/${this.idArrendatario}/calificar`]);
+  navigateToCalificar(): void {
+    this.router.navigate(['/arrendatario/calificar']);
   }
 
-  navigateToPrincipal() {
-    this.router.navigate([`/arrendatario/${this.idArrendatario}`]);
+  navigateToPrincipal(): void {
+    this.router.navigate(['/arrendatario']);
   }
 }
